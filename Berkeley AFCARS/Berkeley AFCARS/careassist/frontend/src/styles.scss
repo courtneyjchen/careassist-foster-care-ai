@@ -1,0 +1,221 @@
+/* ══════════════════════════════════════════════
+   CareAssist – Design System
+   ══════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* ── Gradients ─────────────────────────────── */
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-sidebar: linear-gradient(180deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  --gradient-warning: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --gradient-danger: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+  --gradient-info: linear-gradient(135deg, #667eea 0%, #00d2ff 100%);
+  --gradient-card: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.02) 100%);
+
+  /* ── Colors ────────────────────────────────── */
+  --primary: #667eea;
+  --primary-dark: #5a67d8;
+  --primary-light: rgba(102, 126, 234, 0.1);
+  --accent: #764ba2;
+  --success: #38b2ac;
+  --warning: #ed8936;
+  --danger: #e53e3e;
+  --info: #4299e1;
+
+  /* ── Neutrals ──────────────────────────────── */
+  --bg: #f7f8fc;
+  --surface: #ffffff;
+  --border: #e8ecf4;
+  --border-light: #f0f2f8;
+  --text-primary: #1a1d2e;
+  --text-secondary: #6b7394;
+  --text-light: #9ca3c4;
+
+  /* ── Spacing ───────────────────────────────── */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 50px;
+
+  /* ── Shadows ───────────────────────────────── */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.08);
+  --shadow-primary: 0 4px 14px rgba(102, 126, 234, 0.25);
+
+  /* ── Typography ────────────────────────────── */
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* ── Transitions ───────────────────────────── */
+  --transition-fast: 0.15s ease;
+  --transition-med: 0.25s ease;
+  --transition-slow: 0.4s ease;
+}
+
+/* ── Reset & Base ──────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a { text-decoration: none; color: inherit; }
+
+/* ── Card System ───────────────────────────────── */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-med), transform var(--transition-med);
+}
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Badge System ──────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.badge-critical { background: rgba(229, 62, 62, 0.1); color: #e53e3e; }
+.badge-high { background: rgba(237, 137, 54, 0.1); color: #ed8936; }
+.badge-medium { background: rgba(66, 153, 225, 0.1); color: #4299e1; }
+.badge-low { background: rgba(56, 178, 172, 0.1); color: #38b2ac; }
+.badge-open { background: rgba(102, 126, 234, 0.1); color: #667eea; }
+.badge-in-progress { background: rgba(237, 137, 54, 0.1); color: #ed8936; }
+.badge-closed { background: rgba(56, 178, 172, 0.1); color: #38b2ac; }
+
+/* ── Button System ─────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: var(--font);
+}
+.btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: var(--shadow-primary);
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.btn-outline:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn .material-icons-outlined { font-size: 16px; }
+
+/* ── Status Badges ─────────────────────────────── */
+.status-open { background: rgba(102, 126, 234, 0.1); color: #667eea; }
+.status-in_progress { background: rgba(237, 137, 54, 0.1); color: #dd6b20; }
+.status-closed { background: rgba(56, 178, 172, 0.1); color: #38b2ac; }
+.status-archived { background: rgba(160, 174, 192, 0.1); color: #718096; }
+
+/* ── Animations ────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+.animate-in {
+  animation: fadeInUp 0.4s ease both;
+}
+.slide-in {
+  animation: slideInRight 0.3s ease both;
+}
+
+/* Staggered children */
+.stagger > *:nth-child(1) { animation-delay: 0s; }
+.stagger > *:nth-child(2) { animation-delay: 0.05s; }
+.stagger > *:nth-child(3) { animation-delay: 0.1s; }
+.stagger > *:nth-child(4) { animation-delay: 0.15s; }
+.stagger > *:nth-child(5) { animation-delay: 0.2s; }
+.stagger > *:nth-child(6) { animation-delay: 0.25s; }
+
+/* ── Scrollbar ─────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.2);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.35);
+}
+
+/* ── Tooltip ───────────────────────────────────── */
+[data-tooltip] {
+  position: relative;
+}
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--text-primary);
+  color: white;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast);
+}
+[data-tooltip]:hover::after { opacity: 1; }
+
+/* ── Focus ring ────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Text Gradient Utility ─────────────────────── */
+.text-gradient {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
