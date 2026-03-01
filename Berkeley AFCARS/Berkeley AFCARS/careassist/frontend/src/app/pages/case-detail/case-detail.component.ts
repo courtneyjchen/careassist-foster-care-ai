@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CaseService } from '../../services/case.service';
-import { CaseDetail } from '../../models/interfaces';
+import { CaseDetail, CaseExplanation, FeatureContribution } from '../../models/interfaces';
 
 @Component({
   selector: 'app-case-detail',
@@ -44,6 +44,75 @@ import { CaseDetail } from '../../models/interfaces';
           <p class="detail-val">{{ caseData.permanency_goal | titlecase }}</p>
         </div>
       </div>
+
+      <!-- ═══════════════ SHAP EXPLAINABILITY PANEL ═══════════════ -->
+      <div class="section shap-panel animate-in" *ngIf="explanation">
+        <div class="shap-header">
+          <div class="shap-title-row">
+            <span class="shap-icon">&#x1F9E0;</span>
+            <h3>AI Risk Explanation</h3>
+            <span class="model-badge">XGBoost &middot; SHAP</span>
+          </div>
+          <p class="shap-subtitle">
+            Feature contributions explaining why this case scored
+            <strong>{{ explanation.predicted_score | number:'1.0-0' }}%</strong>
+            risk ({{ explanation.risk_tier }}).
+            Baseline population risk is {{ explanation.base_score | number:'1.0-0' }}%.
+          </p>
+        </div>
+
+        <div class="shap-chart">
+          <div class="chart-row" *ngFor="let f of explanation.features; let i = index"
+               [class.risk]="f.direction === 'risk'"
+               [class.protective]="f.direction === 'protective'">
+            <div class="feature-label">
+              <span class="feature-name">{{ f.label }}</span>
+              <span class="feature-value">{{ f.value }}</span>
+            </div>
+            <div class="bar-container">
+              <div class="bar-track">
+                <div class="bar-center-line"></div>
+                <!-- risk bars grow right from center -->
+                <div class="bar-fill right" *ngIf="f.direction === 'risk'"
+                     [style.width.%]="getBarWidth(f)"
+                     [style.left.%]="50"
+                     [style.animation-delay]="i * 60 + 'ms'">
+                </div>
+                <!-- protective bars grow left from center -->
+                <div class="bar-fill left" *ngIf="f.direction === 'protective'"
+                     [style.width.%]="getBarWidth(f)"
+                     [style.right.%]="50"
+                     [style.animation-delay]="i * 60 + 'ms'">
+                </div>
+              </div>
+              <span class="contrib-value" [class.positive]="f.contribution > 0"
+                    [class.negative]="f.contribution <= 0">
+                {{ f.contribution > 0 ? '+' : '' }}{{ f.contribution | number:'1.2-2' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="shap-legend">
+          <div class="legend-item risk-legend">
+            <span class="legend-swatch risk-swatch"></span>
+            Increases Risk
+          </div>
+          <div class="legend-item protective-legend">
+            <span class="legend-swatch protective-swatch"></span>
+            Decreases Risk
+          </div>
+          <div class="legend-item baseline-legend">
+            <span class="legend-swatch baseline-swatch"></span>
+            Baseline ({{ explanation.base_score | number:'1.0-0' }}%)
+          </div>
+        </div>
+
+        <div class="shap-footer">
+          <span class="model-info">Model: XGBoost &middot; 500 trees &middot; 33 features &middot; ROC-AUC 0.906 &middot; 91% recall</span>
+        </div>
+      </div>
+      <!-- ═══════════════ END SHAP PANEL ═══════════════ -->
 
       <div class="section animate-in" *ngIf="caseData.flags.length > 0">
         <h3>Flags ({{ caseData.flags.length }})</h3>
@@ -107,10 +176,181 @@ import { CaseDetail } from '../../models/interfaces';
     .note-type.court { background: rgba(237,137,54,0.12); color: var(--warning); }
     .note-card p { font-size: 13px; margin-top: 6px; line-height: 1.5; }
     .note-date { font-size: 10px; color: var(--text-light); margin-top: 4px; display: block; }
+
+    /* ═══════════════ SHAP EXPLAINABILITY PANEL STYLES ═══════════════ */
+    .shap-panel {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .shap-panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #8b5cf6, #6366f1, #3b82f6, #06b6d4);
+    }
+    .shap-header { margin-bottom: 20px; }
+    .shap-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .shap-icon { font-size: 22px; }
+    .shap-title-row h3 {
+      font-size: 17px;
+      font-weight: 800;
+      margin: 0;
+      background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .model-badge {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      background: rgba(139, 92, 246, 0.1);
+      color: #8b5cf6;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .shap-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .shap-subtitle strong {
+      color: var(--text-primary);
+    }
+
+    /* ── Horizontal bar chart ── */
+    .shap-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .chart-row {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      align-items: center;
+      gap: 12px;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+    }
+    .chart-row:last-child { border-bottom: none; }
+    .feature-label {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      text-align: right;
+    }
+    .feature-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .feature-value {
+      font-size: 9px;
+      color: var(--text-light);
+      font-weight: 500;
+    }
+    .bar-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bar-track {
+      flex: 1;
+      height: 20px;
+      background: rgba(148, 163, 184, 0.06);
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+    .bar-center-line {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(148, 163, 184, 0.25);
+      z-index: 2;
+    }
+    .bar-fill {
+      position: absolute;
+      top: 2px;
+      bottom: 2px;
+      border-radius: 3px;
+      z-index: 1;
+      animation: barGrow 0.6s ease-out both;
+    }
+    .bar-fill.right {
+      border-radius: 0 3px 3px 0;
+      background: linear-gradient(90deg, #ef4444, #f97316);
+    }
+    .bar-fill.left {
+      border-radius: 3px 0 0 3px;
+      background: linear-gradient(90deg, #06b6d4, #10b981);
+    }
+    @keyframes barGrow {
+      from { width: 0 !important; }
+    }
+    .contrib-value {
+      font-size: 11px;
+      font-weight: 700;
+      min-width: 48px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .contrib-value.positive { color: #ef4444; }
+    .contrib-value.negative { color: #10b981; }
+
+    /* ── Legend ── */
+    .shap-legend {
+      display: flex;
+      gap: 20px;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--text-light);
+      font-weight: 600;
+    }
+    .legend-swatch {
+      width: 14px;
+      height: 8px;
+      border-radius: 2px;
+    }
+    .risk-swatch { background: linear-gradient(90deg, #ef4444, #f97316); }
+    .protective-swatch { background: linear-gradient(90deg, #06b6d4, #10b981); }
+    .baseline-swatch { background: rgba(148, 163, 184, 0.25); }
+
+    /* ── Footer ── */
+    .shap-footer {
+      margin-top: 12px;
+      text-align: right;
+    }
+    .model-info {
+      font-size: 9px;
+      color: var(--text-light);
+      letter-spacing: 0.3px;
+    }
   `],
 })
 export class CaseDetailComponent implements OnInit {
   caseData: CaseDetail | null = null;
+  explanation: CaseExplanation | null = null;
+  private maxAbsContribution = 0;
 
   constructor(private route: ActivatedRoute, private caseService: CaseService) {}
 
@@ -118,6 +358,19 @@ export class CaseDetailComponent implements OnInit {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (id) {
       this.caseService.getCaseDetail(id).subscribe((c) => (this.caseData = c));
+      this.caseService.getExplanation(id).subscribe((e) => {
+        this.explanation = e;
+        // Scale as percentage of predicted score for display
+        this.maxAbsContribution = Math.max(
+          ...e.features.map((f) => Math.abs(f.contribution)),
+          0.01
+        );
+      });
     }
+  }
+
+  getBarWidth(f: FeatureContribution): number {
+    // Scale bars so the largest fills ~45% of the track (half-side)
+    return Math.min(45, (Math.abs(f.contribution) / this.maxAbsContribution) * 45);
   }
 }

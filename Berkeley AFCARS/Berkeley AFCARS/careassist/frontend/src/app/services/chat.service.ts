@@ -10,9 +10,9 @@ export class ChatService {
   constructor(private http: HttpClient) {}
 
   sendMessage(message: string, context?: string): Observable<{ reply: string }> {
-    return this.http.post<{ reply: string }>(`${this.api}/chat`, {
+    return this.http.post<{ reply: string }>(`${this.api}/chat/`, {
       message,
-      context,
+      context: context || null,
     });
   }
 }

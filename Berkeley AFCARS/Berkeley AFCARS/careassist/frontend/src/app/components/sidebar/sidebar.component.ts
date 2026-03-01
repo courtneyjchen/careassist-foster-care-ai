@@ -1,6 +1,16 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+
+interface NavItem {
+  icon: string;
+  label: string;
+  route: string;
+  badge?: number;
+  exact?: boolean;
+  ai?: boolean;
+}
 
 @Component({
   selector: 'app-sidebar',
@@ -14,54 +24,48 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
         </div>
         <div class="brand-text">
           <span class="brand-name">CareAssist</span>
-          <span class="brand-sub">Case Management</span>
+          <span class="brand-sub">{{ isFosterParent ? 'Family Portal' : 'Case Management' }}</span>
         </div>
       </div>
 
       <div class="nav-section">
         <span class="nav-label">Main</span>
 
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
-          <span class="material-icons-outlined">dashboard</span>
-          <span>Dashboard</span>
-        </a>
-        <a routerLink="/cases" routerLinkActive="active" class="nav-item">
-          <span class="material-icons-outlined">folder_open</span>
-          <span>Cases</span>
-        </a>
-        <a routerLink="/messages" routerLinkActive="active" class="nav-item">
-          <span class="material-icons-outlined">chat_bubble_outline</span>
-          <span>Messages</span>
-          <span class="nav-badge">3</span>
-        </a>
-        <a routerLink="/calendar" routerLinkActive="active" class="nav-item">
-          <span class="material-icons-outlined">calendar_today</span>
-          <span>Calendar</span>
-        </a>
-        <a routerLink="/files" routerLinkActive="active" class="nav-item">
-          <span class="material-icons-outlined">description</span>
-          <span>Files</span>
-        </a>
-        <a routerLink="/reports" routerLinkActive="active" class="nav-item">
-          <span class="material-icons-outlined">assessment</span>
-          <span>Reports</span>
-        </a>
+        <ng-container *ngFor="let item of navItems">
+          <a [routerLink]="item.route"
+             routerLinkActive="active"
+             [routerLinkActiveOptions]="{exact: !!item.exact}"
+             class="nav-item"
+             [class.ai-nav]="item.ai">
+            <span class="material-icons-outlined">{{ item.icon }}</span>
+            <span>{{ item.label }}</span>
+            <span class="nav-badge" *ngIf="item.badge">{{ item.badge }}</span>
+            <span class="ai-glow" *ngIf="item.ai"></span>
+          </a>
+        </ng-container>
       </div>
 
-      <div class="nav-section">
-        <span class="nav-label">Tools</span>
-        <a routerLink="/ai-assistant" routerLinkActive="active" class="nav-item ai-nav">
-          <span class="material-icons-outlined">auto_awesome</span>
-          <span>AI Assistant</span>
-          <span class="ai-glow"></span>
-        </a>
-      </div>
+      <ng-container *ngIf="toolItems.length > 0">
+        <div class="nav-section">
+          <span class="nav-label">Tools</span>
+          <ng-container *ngFor="let item of toolItems">
+            <a [routerLink]="item.route"
+               routerLinkActive="active"
+               class="nav-item"
+               [class.ai-nav]="item.ai">
+              <span class="material-icons-outlined">{{ item.icon }}</span>
+              <span>{{ item.label }}</span>
+              <span class="ai-glow" *ngIf="item.ai"></span>
+            </a>
+          </ng-container>
+        </div>
+      </ng-container>
 
       <div class="sidebar-user">
-        <div class="user-avatar">ST</div>
+        <div class="user-avatar">{{ userInitials }}</div>
         <div class="user-info">
-          <span class="user-name">Samantha T.</span>
-          <span class="user-role">Social Worker</span>
+          <span class="user-name">{{ userDisplayName }}</span>
+          <span class="user-role">{{ userRoleLabel }}</span>
         </div>
         <span class="user-status"></span>
       </div>
@@ -149,4 +153,48 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
     }
   `],
 })
-export class SidebarComponent {}
+export class SidebarComponent {
+  navItems: NavItem[] = [];
+  toolItems: NavItem[] = [];
+  isFosterParent = false;
+
+  userInitials = '??';
+  userDisplayName = 'User';
+  userRoleLabel = '';
+
+  constructor(private auth: AuthService) {
+    const user = this.auth.getCurrentUser();
+    const role = this.auth.getUserRole() || 'social_worker';
+    this.isFosterParent = role === 'foster_parent';
+
+    if (user) {
+      this.userInitials = (user.first_name[0] + user.last_name[0]).toUpperCase();
+      this.userDisplayName = user.first_name + ' ' + user.last_name[0] + '.';
+      this.userRoleLabel = this.auth.getRoleLabel(role);
+    }
+
+    if (role === 'foster_parent') {
+      this.navItems = [
+        { icon: 'family_restroom', label: 'My Children', route: '/', exact: true },
+        { icon: 'chat_bubble_outline', label: 'Messages', route: '/messages', badge: 3 },
+        { icon: 'calendar_today', label: 'Calendar', route: '/calendar' },
+        { icon: 'upload_file', label: 'Documents', route: '/files' },
+        { icon: 'assessment', label: 'Reports', route: '/reports' },
+      ];
+      this.toolItems = [];
+    } else {
+      // social_worker, supervisor, admin
+      this.navItems = [
+        { icon: 'dashboard', label: 'Dashboard', route: '/', exact: true },
+        { icon: 'folder_open', label: 'Cases', route: '/cases' },
+        { icon: 'chat_bubble_outline', label: 'Messages', route: '/messages', badge: 3 },
+        { icon: 'calendar_today', label: 'Calendar', route: '/calendar' },
+        { icon: 'description', label: 'Files', route: '/files' },
+        { icon: 'assessment', label: 'Reports', route: '/reports' },
+      ];
+      this.toolItems = [
+        { icon: 'auto_awesome', label: 'AI Assistant', route: '/ai-assistant', ai: true },
+      ];
+    }
+  }
+}

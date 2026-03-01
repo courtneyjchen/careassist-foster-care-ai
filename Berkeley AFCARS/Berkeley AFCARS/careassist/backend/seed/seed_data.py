@@ -2,12 +2,13 @@
 from datetime import date, datetime
 from sqlalchemy import select
 
-from ..app.database import async_session
-from ..app.models.user import User
-from ..app.models.child import Child
-from ..app.models.case import Case
-from ..app.models.case_flag import CaseFlag
-from ..app.models.note import Note
+from app.database import async_session
+from app.models.user import User
+from app.models.child import Child
+from app.models.case import Case
+from app.models.case_flag import CaseFlag
+from app.models.note import Note
+from app.services.risk_engine import calculate_priority_score
 
 
 async def seed_if_empty():
@@ -31,7 +32,21 @@ async def seed_if_empty():
             last_name="Chen",
             role="supervisor",
         )
-        db.add_all([u1, u2])
+        u3 = User(
+            email="maria.garcia@careassist.org",
+            hashed_password="demo1234",
+            first_name="Maria",
+            last_name="Garcia",
+            role="foster_parent",
+        )
+        u4 = User(
+            email="jordan.davis@careassist.org",
+            hashed_password="demo1234",
+            first_name="Jordan",
+            last_name="Davis",
+            role="aged_out_youth",
+        )
+        db.add_all([u1, u2, u3, u4])
         await db.flush()
 
         # ── Children ──
@@ -75,47 +90,53 @@ async def seed_if_empty():
         # ── Cases ──
         cases_data = [
             {"case_number": "AC-2025-0142", "child": children[0], "status": "open",
-             "priority_score": 0.87, "removal_reason": "Neglect",
+             "removal_reason": "Neglect",
              "placement_type": "Foster Home", "permanency_goal": "Reunification",
              "months_in_care": 14, "has_parental_rights_terminated": False},
             {"case_number": "AC-2025-0198", "child": children[1], "status": "open",
-             "priority_score": 0.72, "removal_reason": "Parental Substance Abuse",
-             "placement_type": "Kinship Care", "permanency_goal": "Reunification",
+             "removal_reason": "Parental Substance Abuse",
+             "placement_type": "Foster Home", "permanency_goal": "Reunification",
              "months_in_care": 8, "has_parental_rights_terminated": False},
             {"case_number": "AC-2024-0891", "child": children[2], "status": "open",
-             "priority_score": 0.94, "removal_reason": "Physical Abuse",
+             "removal_reason": "Physical Abuse",
              "placement_type": "Group Home", "permanency_goal": "Adoption",
              "months_in_care": 30, "has_parental_rights_terminated": True},
             {"case_number": "AC-2025-0267", "child": children[3], "status": "open",
-             "priority_score": 0.35, "removal_reason": "Parental Incarceration",
-             "placement_type": "Kinship Care", "permanency_goal": "Reunification",
+             "removal_reason": "Parental Incarceration",
+             "placement_type": "Foster Home", "permanency_goal": "Reunification",
              "months_in_care": 4, "has_parental_rights_terminated": False},
             {"case_number": "AC-2025-0155", "child": children[4], "status": "open",
-             "priority_score": 0.81, "removal_reason": "Neglect",
+             "removal_reason": "Neglect",
              "placement_type": "Foster Home", "permanency_goal": "Adoption",
              "months_in_care": 18, "has_parental_rights_terminated": True},
             {"case_number": "AC-2024-0734", "child": children[5], "status": "in_progress",
-             "priority_score": 0.68, "removal_reason": "Abandonment",
+             "removal_reason": "Abandonment",
              "placement_type": "Residential", "permanency_goal": "Emancipation",
              "months_in_care": 36, "has_parental_rights_terminated": True},
             {"case_number": "AC-2025-0312", "child": children[6], "status": "open",
-             "priority_score": 0.55, "removal_reason": "Domestic Violence",
+             "removal_reason": "Domestic Violence",
              "placement_type": "Foster Home", "permanency_goal": "Reunification",
              "months_in_care": 6, "has_parental_rights_terminated": False},
             {"case_number": "AC-2025-0089", "child": children[7], "status": "in_progress",
-             "priority_score": 0.76, "removal_reason": "Parental Substance Abuse",
+             "removal_reason": "Parental Substance Abuse",
              "placement_type": "Foster Home", "permanency_goal": "Adoption",
              "months_in_care": 22, "has_parental_rights_terminated": False},
             {"case_number": "AC-2025-0401", "child": children[8], "status": "open",
-             "priority_score": 0.28, "removal_reason": "Inadequate Housing",
+             "removal_reason": "Inadequate Housing",
              "placement_type": "Kinship Care", "permanency_goal": "Reunification",
              "months_in_care": 2, "has_parental_rights_terminated": False},
         ]
 
         cases = []
-        for cd in cases_data:
+        # Cases assigned to foster parent Maria Garcia (u3): indices 1, 3, 6
+        foster_parent_cases = {1, 3, 6}  # Ethan Rodriguez, Liam Thompson, Emma Martinez
+        for idx, cd in enumerate(cases_data):
             child = cd.pop("child")
             c = Case(child_id=child.id, assigned_worker_id=u1.id, **cd)
+            if idx in foster_parent_cases:
+                c.foster_parent_id = u3.id
+            # Score with the XGBoost model instead of hardcoding
+            c.priority_score = round(calculate_priority_score(child, c), 4)
             db.add(c)
             cases.append(c)
         await db.flush()

@@ -74,3 +74,20 @@ export interface CaseDetail {
   flags: CaseFlag[];
   notes: CaseNote[];
 }
+
+export interface FeatureContribution {
+  feature: string;
+  label: string;
+  value: string;
+  contribution: number;
+  direction: 'risk' | 'protective';
+}
+
+export interface CaseExplanation {
+  case_id: number;
+  base_score: number;
+  predicted_score: number;
+  risk_tier: string;
+  disruption_flag: boolean;
+  features: FeatureContribution[];
+}

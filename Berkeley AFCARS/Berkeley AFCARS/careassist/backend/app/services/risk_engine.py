@@ -1,36 +1,38 @@
-"""Risk engine service (placeholder for ML model)."""
+"""Risk engine service — backed by the trained XGBoost model.
+
+Wraps the pure-Python XGBoost scorer (app.ml.xgb_scorer) which replicates
+inference from the model trained on 5.76 M AFCARS records (FY 2020-2024).
+
+Model specs:
+  - Algorithm:   XGBoost, 500 trees, max_depth 8, lr 0.05
+  - Metric:      ROC-AUC 0.906, 91 % recall at threshold 0.40
+  - Features:    33 (race/gender excluded)
+"""
+
+from __future__ import annotations
+from typing import Any
+from ..ml.xgb_scorer import score_case, predict_with_explanation, get_model_metadata
 
 
-def calculate_priority_score(child: dict, case: dict) -> float:
-    """Calculate a priority score based on case factors.
-    In production, this would call a trained ML model (XGBoost/Random Forest).
+def calculate_priority_score(child: Any, case: Any) -> float:
+    """Score a case using the XGBoost model.
+
+    Parameters
+    ----------
+    child : Child SQLAlchemy model
+    case  : Case  SQLAlchemy model
+
+    Returns
+    -------
+    float  Disruption-risk probability in [0, 1].
     """
-    score = 0.0
+    probability, _ = score_case(child, case)
+    return probability
 
-    # Prior placements increase risk
-    prior = child.get("prior_placements", 0)
-    if prior >= 3:
-        score += 0.3
-    elif prior >= 1:
-        score += 0.15
 
-    # Medical/behavioral needs
-    if child.get("has_medical_needs"):
-        score += 0.1
-    if child.get("has_behavioral_needs"):
-        score += 0.15
-    if child.get("has_disability"):
-        score += 0.1
+def explain_case(child: Any, case: Any) -> dict:
+    """Return a full SHAP-style explanation for a case.
 
-    # Time in care
-    months = case.get("months_in_care", 0)
-    if months > 24:
-        score += 0.2
-    elif months > 12:
-        score += 0.1
-
-    # TPR status
-    if case.get("has_parental_rights_terminated"):
-        score += 0.1
-
-    return min(score, 1.0)
+    Delegates to the XGBoost scorer's predict_with_explanation.
+    """
+    return predict_with_explanation(child, case)

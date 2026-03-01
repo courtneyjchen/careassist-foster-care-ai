@@ -11,6 +11,7 @@ class Case(Base):
     case_number = Column(String, unique=True, nullable=False)
     child_id = Column(Integer, ForeignKey("children.id"), nullable=False)
     assigned_worker_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    foster_parent_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     status = Column(String, default="open")  # open, in_progress, closed, archived
     priority_score = Column(Float, default=0.0)
     removal_reason = Column(String)
@@ -22,7 +23,8 @@ class Case(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     child = relationship("Child", back_populates="cases")
-    assigned_worker = relationship("User", back_populates="cases")
+    assigned_worker = relationship("User", foreign_keys=[assigned_worker_id], back_populates="cases")
+    foster_parent = relationship("User", foreign_keys=[foster_parent_id], back_populates="foster_cases")
     flags = relationship("CaseFlag", back_populates="case", cascade="all, delete-orphan")
     notes = relationship("Note", back_populates="case", cascade="all, delete-orphan")
     documents = relationship("Document", back_populates="case", cascade="all, delete-orphan")

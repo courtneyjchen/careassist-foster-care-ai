@@ -1,4 +1,5 @@
 """Cases router."""
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -10,11 +11,20 @@ from ..models.case_flag import CaseFlag
 from ..models.note import Note
 from ..schemas.case import CaseSummaryResponse, CaseDetailResponse
 from ..schemas.note import NoteCreate, NoteResponse
+from ..schemas.explanation import CaseExplanationResponse
+from ..services.risk_engine import explain_case, calculate_priority_score
+from ..ml.xgb_scorer import get_model_metadata
 
 router = APIRouter()
 
 
-@router.get("/", response_model=list[CaseSummaryResponse])
+@router.get("/model/info")
+async def model_info():
+    """Return metadata about the trained XGBoost model."""
+    return get_model_metadata()
+
+
+@router.get("/", response_model=List[CaseSummaryResponse])
 async def get_cases(db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         select(Case)
@@ -127,3 +137,37 @@ async def add_note(case_id: int, payload: NoteCreate, db: AsyncSession = Depends
         "content": note.content,
         "created_at": str(note.created_at),
     }
+
+
+@router.get("/{case_id}/explanation", response_model=CaseExplanationResponse)
+async def get_case_explanation(case_id: int, db: AsyncSession = Depends(get_db)):
+    """Return SHAP-style feature contributions explaining why a case
+    received its risk score.  Uses the XGBoost model scorer."""
+    result = await db.execute(
+        select(Case)
+        .options(joinedload(Case.child))
+        .where(Case.id == case_id)
+    )
+    case = result.unique().scalar_one_or_none()
+    if not case:
+        raise HTTPException(status_code=404, detail="Case not found")
+
+    return explain_case(case.child, case)
+
+
+@router.post("/{case_id}/score")
+async def rescore_case(case_id: int, db: AsyncSession = Depends(get_db)):
+    """Re-score a case using the XGBoost model and persist the result."""
+    result = await db.execute(
+        select(Case)
+        .options(joinedload(Case.child))
+        .where(Case.id == case_id)
+    )
+    case = result.unique().scalar_one_or_none()
+    if not case:
+        raise HTTPException(status_code=404, detail="Case not found")
+
+    new_score = calculate_priority_score(case.child, case)
+    case.priority_score = round(new_score, 4)
+    await db.commit()
+    return {"case_id": case_id, "new_score": case.priority_score}

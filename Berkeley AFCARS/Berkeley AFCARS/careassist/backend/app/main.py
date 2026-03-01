@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import CORS_ORIGINS
 from .database import init_db
-from .routers import auth, dashboard, cases, chat, files
+from .routers import auth, dashboard, cases, chat, files, foster_parent
 
 app = FastAPI(
     title="CareAssist",
@@ -26,13 +26,14 @@ app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"]
 app.include_router(cases.router, prefix="/api/cases", tags=["Cases"])
 app.include_router(chat.router, prefix="/api/chat", tags=["AI Assistant"])
 app.include_router(files.router, prefix="/api/files", tags=["Files / S3"])
+app.include_router(foster_parent.router, prefix="/api/foster", tags=["Foster Parent"])
 
 
 @app.on_event("startup")
 async def startup():
     await init_db()
     # Seed demo data
-    from ..seed.seed_data import seed_if_empty
+    from seed.seed_data import seed_if_empty
     await seed_if_empty()
 
 

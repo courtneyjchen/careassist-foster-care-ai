@@ -12,7 +12,8 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
-    role = Column(String, default="social_worker")  # social_worker, supervisor, admin
+    role = Column(String, default="social_worker")  # social_worker, supervisor, foster_parent, aged_out_youth, admin
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    cases = relationship("Case", back_populates="assigned_worker")
+    cases = relationship("Case", foreign_keys="[Case.assigned_worker_id]", back_populates="assigned_worker")
+    foster_cases = relationship("Case", foreign_keys="[Case.foster_parent_id]", back_populates="foster_parent")

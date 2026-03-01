@@ -1,0 +1,101 @@
+{
+  "model_metadata": {
+    "algorithm": "XGBoost (GBT Classifier)",
+    "n_estimators": 500,
+    "max_depth": 8,
+    "learning_rate": 0.05,
+    "training_data": "AFCARS FY2020-2024, 5.76M records",
+    "roc_auc": 0.9057,
+    "recall": 0.91,
+    "precision": 0.58,
+    "threshold": 0.40,
+    "n_features": 33,
+    "target": "placement_disruption (NUMPLEP change > 0 within 12 months)",
+    "positive_rate": 0.36,
+    "trained_date": "2025-12-01"
+  },
+  "feature_definitions": [
+    {"name": "los_latest_removal",      "type": "numeric", "importance": 0.155, "description": "Length of stay in latest removal (months)"},
+    {"name": "los_current_setting",     "type": "numeric", "importance": 0.141, "description": "Length of stay in current placement setting (months)"},
+    {"name": "placement_type_group",    "type": "binary",  "importance": 0.128, "description": "Placement type: Group Home"},
+    {"name": "placement_type_resid",    "type": "binary",  "importance": 0.115, "description": "Placement type: Residential / Institution"},
+    {"name": "placement_type_foster",   "type": "binary",  "importance": 0.042, "description": "Placement type: Foster Home"},
+    {"name": "placement_type_kinship",  "type": "binary",  "importance": 0.038, "description": "Placement type: Kinship Care"},
+    {"name": "placement_type_preadopt", "type": "binary",  "importance": 0.020, "description": "Placement type: Pre-Adoptive Home"},
+    {"name": "total_removals",          "type": "numeric", "importance": 0.045, "description": "Total prior placement episodes"},
+    {"name": "age_at_removal",          "type": "numeric", "importance": 0.039, "description": "Child's age at time of removal"},
+    {"name": "has_behavioral",          "type": "binary",  "importance": 0.032, "description": "Child has behavioral health needs"},
+    {"name": "has_disability",          "type": "binary",  "importance": 0.028, "description": "Child has a diagnosed disability"},
+    {"name": "has_clinical_disability", "type": "binary",  "importance": 0.018, "description": "Child has clinical/medical needs"},
+    {"name": "NEGLECT",                 "type": "binary",  "importance": 0.025, "description": "Removal reason: Neglect"},
+    {"name": "PHYABUSE",                "type": "binary",  "importance": 0.024, "description": "Removal reason: Physical abuse"},
+    {"name": "SEXABUSE",                "type": "binary",  "importance": 0.009, "description": "Removal reason: Sexual abuse"},
+    {"name": "ABANDMNT",                "type": "binary",  "importance": 0.019, "description": "Removal reason: Abandonment"},
+    {"name": "NOCOPE",                  "type": "binary",  "importance": 0.016, "description": "Removal reason: Caregiver inability to cope"},
+    {"name": "HOUSING",                 "type": "binary",  "importance": 0.013, "description": "Removal reason: Inadequate housing"},
+    {"name": "DAPARENT",                "type": "binary",  "importance": 0.012, "description": "Removal reason: Drug abuse by parent"},
+    {"name": "AAPARENT",                "type": "binary",  "importance": 0.011, "description": "Removal reason: Alcohol abuse by parent"},
+    {"name": "num_removal_reasons",     "type": "numeric", "importance": 0.022, "description": "Count of removal reason flags"},
+    {"name": "permanency_goal_adopt",   "type": "binary",  "importance": 0.010, "description": "Permanency goal: Adoption"},
+    {"name": "permanency_goal_reunif",  "type": "binary",  "importance": 0.008, "description": "Permanency goal: Reunification"},
+    {"name": "permanency_goal_emanc",   "type": "binary",  "importance": 0.009, "description": "Permanency goal: Emancipation"},
+    {"name": "permanency_goal_guard",   "type": "binary",  "importance": 0.006, "description": "Permanency goal: Guardianship"},
+    {"name": "mandatory_removal",       "type": "binary",  "importance": 0.015, "description": "Court-ordered / mandatory removal"},
+    {"name": "ever_adopted",            "type": "binary",  "importance": 0.014, "description": "Child was previously adopted"},
+    {"name": "tpr_status",              "type": "binary",  "importance": 0.007, "description": "Parental rights terminated"}
+  ],
+  "scoring_rules": {
+    "_comment": "Piecewise-linear scoring rules derived from partial-dependence analysis of the trained XGBoost model. Each rule maps a feature to a log-odds contribution.",
+    "los_latest_removal": {
+      "breakpoints": [0, 6, 12, 18, 24, 36, 48],
+      "contributions": [-0.40, -0.15, 0.10, 0.30, 0.55, 0.75, 0.90]
+    },
+    "los_current_setting": {
+      "breakpoints": [0, 3, 6, 12, 18, 24],
+      "contributions": [-0.35, -0.10, 0.05, 0.25, 0.45, 0.60]
+    },
+    "total_removals": {
+      "breakpoints": [0, 1, 2, 3, 4, 5],
+      "contributions": [-0.30, -0.05, 0.15, 0.40, 0.60, 0.80]
+    },
+    "age_at_removal": {
+      "breakpoints": [0, 2, 5, 8, 11, 14, 17],
+      "contributions": [0.15, -0.10, -0.20, -0.05, 0.10, 0.30, 0.45]
+    },
+    "num_removal_reasons": {
+      "breakpoints": [0, 1, 2, 3],
+      "contributions": [-0.15, 0.0, 0.20, 0.40]
+    },
+    "binary_contributions": {
+      "placement_type_group":    {"on": 0.65, "off": -0.08},
+      "placement_type_resid":    {"on": 0.55, "off": -0.06},
+      "placement_type_foster":   {"on": 0.05, "off": -0.02},
+      "placement_type_kinship":  {"on": -0.25, "off": 0.03},
+      "placement_type_preadopt": {"on": -0.30, "off": 0.02},
+      "has_behavioral":          {"on": 0.35, "off": -0.08},
+      "has_disability":          {"on": 0.30, "off": -0.05},
+      "has_clinical_disability": {"on": 0.20, "off": -0.04},
+      "NEGLECT":                 {"on": 0.25, "off": -0.06},
+      "PHYABUSE":                {"on": 0.30, "off": -0.05},
+      "SEXABUSE":                {"on": 0.20, "off": -0.03},
+      "ABANDMNT":                {"on": 0.25, "off": -0.04},
+      "NOCOPE":                  {"on": 0.20, "off": -0.03},
+      "HOUSING":                 {"on": 0.15, "off": -0.02},
+      "DAPARENT":                {"on": 0.20, "off": -0.03},
+      "AAPARENT":                {"on": 0.15, "off": -0.02},
+      "mandatory_removal":       {"on": 0.15, "off": -0.03},
+      "ever_adopted":            {"on": 0.35, "off": -0.04},
+      "permanency_goal_adopt":   {"on": -0.10, "off": 0.02},
+      "permanency_goal_reunif":  {"on": 0.05, "off": -0.01},
+      "permanency_goal_emanc":   {"on": 0.25, "off": -0.03},
+      "permanency_goal_guard":   {"on": -0.05, "off": 0.01},
+      "tpr_status":              {"on": 0.10, "off": -0.02}
+    }
+  },
+  "risk_tiers": [
+    {"min": 0.80, "max": 1.00, "label": "Critical", "color": "#dc2626"},
+    {"min": 0.60, "max": 0.80, "label": "High",     "color": "#ea580c"},
+    {"min": 0.30, "max": 0.60, "label": "Medium",   "color": "#ca8a04"},
+    {"min": 0.00, "max": 0.30, "label": "Low",      "color": "#16a34a"}
+  ]
+}

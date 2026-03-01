@@ -1,86 +1,98 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, SidebarComponent, CommonModule],
   template: `
-    <div class="app-shell">
-      <app-sidebar></app-sidebar>
+    <!-- Login page: no shell -->
+    <ng-container *ngIf="isLoginPage(); else appShell">
+      <router-outlet></router-outlet>
+    </ng-container>
 
-      <div class="main-wrapper">
-        <!-- Floating Particles Background -->
-        <div class="particle-field" [style.transform]="'translateY(' + scrollOffset + 'px)'">
-          <div *ngFor="let p of particles"
-               class="particle"
-               [style.left.%]="p.x"
-               [style.top.%]="p.y"
-               [style.width.px]="p.size"
-               [style.height.px]="p.size"
-               [style.opacity]="p.opacity"
-               [style.animation-duration.s]="p.duration"
-               [style.animation-delay.s]="p.delay">
-          </div>
-        </div>
+    <!-- Main app shell -->
+    <ng-template #appShell>
+      <div class="app-shell">
+        <app-sidebar></app-sidebar>
 
-        <!-- Gradient Mesh Blobs -->
-        <div class="mesh-bg">
-          <div class="blob blob-1" [style.transform]="'translate(' + (scrollOffset * 0.08) + 'px, ' + (scrollOffset * -0.05) + 'px)'"></div>
-          <div class="blob blob-2" [style.transform]="'translate(' + (scrollOffset * -0.06) + 'px, ' + (scrollOffset * 0.04) + 'px)'"></div>
-          <div class="blob blob-3" [style.transform]="'translate(' + (scrollOffset * 0.04) + 'px, ' + (scrollOffset * 0.07) + 'px)'"></div>
-        </div>
-
-        <!-- Grid Pattern Overlay -->
-        <div class="grid-overlay" [style.background-position-y.px]="scrollOffset * 0.15"></div>
-
-        <!-- Header -->
-        <header class="top-header">
-          <div class="header-left">
-            <h1 class="greeting">Welcome back, <span class="greeting-name">Samantha</span></h1>
-            <p class="greeting-sub">{{ today | date:'EEEE, MMMM d, y' }} · Alameda County DCFS</p>
-          </div>
-          <div class="header-right">
-            <div class="header-stat">
-              <span class="material-icons-outlined">notifications_none</span>
-              <span class="notif-dot"></span>
+        <div class="main-wrapper">
+          <!-- Floating Particles Background -->
+          <div class="particle-field" [style.transform]="'translateY(' + scrollOffset + 'px)'">
+            <div *ngFor="let p of particles"
+                 class="particle"
+                 [style.left.%]="p.x"
+                 [style.top.%]="p.y"
+                 [style.width.px]="p.size"
+                 [style.height.px]="p.size"
+                 [style.opacity]="p.opacity"
+                 [style.animation-duration.s]="p.duration"
+                 [style.animation-delay.s]="p.delay">
             </div>
-            <div class="header-stat">
-              <span class="material-icons-outlined">help_outline</span>
-            </div>
-            <div class="header-avatar">ST</div>
           </div>
-        </header>
 
-        <!-- Main Content -->
-        <main class="main-content" (scroll)="onScroll($event)">
-          <router-outlet></router-outlet>
+          <!-- Gradient Mesh Blobs -->
+          <div class="mesh-bg">
+            <div class="blob blob-1" [style.transform]="'translate(' + (scrollOffset * 0.08) + 'px, ' + (scrollOffset * -0.05) + 'px)'"></div>
+            <div class="blob blob-2" [style.transform]="'translate(' + (scrollOffset * -0.06) + 'px, ' + (scrollOffset * 0.04) + 'px)'"></div>
+            <div class="blob blob-3" [style.transform]="'translate(' + (scrollOffset * 0.04) + 'px, ' + (scrollOffset * 0.07) + 'px)'"></div>
+          </div>
 
-          <!-- Footer -->
-          <footer class="app-footer">
-            <div class="footer-left">
-              <div class="footer-logo">
-                <span class="material-icons-outlined">volunteer_activism</span>
-                <span class="footer-brand">CareAssist</span>
+          <!-- Grid Pattern Overlay -->
+          <div class="grid-overlay" [style.background-position-y.px]="scrollOffset * 0.15"></div>
+
+          <!-- Header -->
+          <header class="top-header">
+            <div class="header-left">
+              <h1 class="greeting">Welcome back, <span class="greeting-name">{{ currentFirstName }}</span></h1>
+              <p class="greeting-sub">{{ today | date:'EEEE, MMMM d, y' }} · {{ currentRoleLabel }}</p>
+            </div>
+            <div class="header-right">
+              <div class="header-stat">
+                <span class="material-icons-outlined">notifications_none</span>
+                <span class="notif-dot"></span>
               </div>
-              <span class="footer-copy">&copy; 2026 Berkeley MIDS · Capstone Project</span>
+              <div class="header-stat">
+                <span class="material-icons-outlined">help_outline</span>
+              </div>
+              <div class="header-stat logout-btn" (click)="onLogout()" title="Sign out">
+                <span class="material-icons-outlined">logout</span>
+              </div>
+              <div class="header-avatar">{{ currentInitials }}</div>
             </div>
-            <div class="footer-links">
-              <a href="#">Privacy Policy</a>
-              <span class="footer-sep">·</span>
-              <a href="#">Documentation</a>
-              <span class="footer-sep">·</span>
-              <a href="#">Support</a>
-            </div>
-            <div class="footer-right">
-              <span class="footer-version">v1.0.0</span>
-            </div>
-          </footer>
-        </main>
+          </header>
+
+          <!-- Main Content -->
+          <main class="main-content" (scroll)="onScroll($event)">
+            <router-outlet></router-outlet>
+
+            <!-- Footer -->
+            <footer class="app-footer">
+              <div class="footer-left">
+                <div class="footer-logo">
+                  <span class="material-icons-outlined">volunteer_activism</span>
+                  <span class="footer-brand">CareAssist</span>
+                </div>
+                <span class="footer-copy">&copy; 2026 Berkeley MIDS · Capstone Project</span>
+              </div>
+              <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <span class="footer-sep">·</span>
+                <a href="#">Documentation</a>
+                <span class="footer-sep">·</span>
+                <a href="#">Support</a>
+              </div>
+              <div class="footer-right">
+                <span class="footer-version">v1.0.0</span>
+              </div>
+            </footer>
+          </main>
+        </div>
       </div>
-    </div>
+    </ng-template>
   `,
   styles: [`
     .app-shell {
@@ -183,6 +195,7 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
     }
     .header-stat:hover { background: var(--primary-light); color: var(--primary); }
     .header-stat .material-icons-outlined { font-size: 20px; }
+    .logout-btn:hover { color: #ef4444 !important; background: rgba(239, 68, 68, 0.1) !important; }
     .notif-dot {
       position: absolute; top: 8px; right: 8px; width: 8px; height: 8px;
       background: var(--danger); border-radius: 50%; border: 2px solid white;
@@ -233,6 +246,31 @@ export class AppComponent {
     duration: 8 + Math.random() * 14,
     delay: Math.random() * -10,
   }));
+
+  constructor(private auth: AuthService, private router: Router) {}
+
+  get currentFirstName(): string {
+    return this.auth.getCurrentUser()?.first_name || 'User';
+  }
+
+  get currentInitials(): string {
+    const u = this.auth.getCurrentUser();
+    if (!u) return '??';
+    return (u.first_name[0] + u.last_name[0]).toUpperCase();
+  }
+
+  get currentRoleLabel(): string {
+    const role = this.auth.getUserRole();
+    return role ? this.auth.getRoleLabel(role) : 'Alameda County DCFS';
+  }
+
+  isLoginPage(): boolean {
+    return this.router.url === '/login';
+  }
+
+  onLogout(): void {
+    this.auth.logout();
+  }
 
   onScroll(event: Event): void {
     const el = event.target as HTMLElement;

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@env/environment';
-import { CaseSummary, CaseDetail, CaseNote, NoteType } from '../models/interfaces';
+import { CaseSummary, CaseDetail, CaseNote, NoteType, CaseExplanation } from '../models/interfaces';
 
 @Injectable({ providedIn: 'root' })
 export class CaseService {
@@ -23,5 +23,9 @@ export class CaseService {
       note_type: noteType,
       content,
     });
+  }
+
+  getExplanation(caseId: number): Observable<CaseExplanation> {
+    return this.http.get<CaseExplanation>(`${this.api}/cases/${caseId}/explanation`);
   }
 }

@@ -1,4 +1,5 @@
 """Dashboard router."""
+from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -33,7 +34,7 @@ async def get_dashboard_stats(db: AsyncSession = Depends(get_db)):
     }
 
 
-@router.get("/flagged", response_model=list[FlaggedCaseSummaryResponse])
+@router.get("/flagged", response_model=List[FlaggedCaseSummaryResponse])
 async def get_flagged_cases(db: AsyncSession = Depends(get_db)):
     from sqlalchemy.orm import joinedload
 

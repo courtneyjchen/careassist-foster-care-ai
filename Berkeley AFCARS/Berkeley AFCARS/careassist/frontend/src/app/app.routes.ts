@@ -1,15 +1,26 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
+import { workerOnlyGuard } from './guards/role.guard';
 
 export const routes: Routes = [
   {
-    path: '',
+    path: 'login',
     loadComponent: () =>
-      import('./pages/dashboard/dashboard.component').then(
-        (m) => m.DashboardComponent
+      import('./pages/login/login.component').then(
+        (m) => m.LoginComponent
+      ),
+  },
+  {
+    path: '',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/home-router/home-router.component').then(
+        (m) => m.HomeRouterComponent
       ),
   },
   {
     path: 'cases',
+    canActivate: [authGuard, workerOnlyGuard],
     loadComponent: () =>
       import('./pages/cases/cases.component').then(
         (m) => m.CasesComponent
@@ -17,6 +28,7 @@ export const routes: Routes = [
   },
   {
     path: 'cases/:id',
+    canActivate: [authGuard, workerOnlyGuard],
     loadComponent: () =>
       import('./pages/case-detail/case-detail.component').then(
         (m) => m.CaseDetailComponent
@@ -24,6 +36,7 @@ export const routes: Routes = [
   },
   {
     path: 'messages',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/messages/messages.component').then(
         (m) => m.MessagesComponent
@@ -31,6 +44,7 @@ export const routes: Routes = [
   },
   {
     path: 'calendar',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/calendar/calendar.component').then(
         (m) => m.CalendarComponent
@@ -38,6 +52,7 @@ export const routes: Routes = [
   },
   {
     path: 'files',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/files/files.component').then(
         (m) => m.FilesComponent
@@ -45,6 +60,7 @@ export const routes: Routes = [
   },
   {
     path: 'reports',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/reports/reports.component').then(
         (m) => m.ReportsComponent
@@ -52,6 +68,7 @@ export const routes: Routes = [
   },
   {
     path: 'ai-assistant',
+    canActivate: [authGuard, workerOnlyGuard],
     loadComponent: () =>
       import('./pages/ai-assistant/ai-assistant.component').then(
         (m) => m.AiAssistantComponent
