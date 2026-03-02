@@ -20,7 +20,7 @@ interface NavItem {
     <nav class="sidebar">
       <div class="sidebar-brand">
         <div class="brand-icon">
-          <span class="material-icons-outlined">volunteer_activism</span>
+          <img src="assets/logo-icon.svg" alt="CareAssist" class="brand-logo-svg" />
         </div>
         <div class="brand-text">
           <span class="brand-name">CareAssist</span>
@@ -94,10 +94,10 @@ interface NavItem {
     }
     .brand-icon {
       width: 36px; height: 36px; border-radius: 10px;
-      background: var(--gradient-primary); display: flex;
+      display: flex;
       align-items: center; justify-content: center;
     }
-    .brand-icon .material-icons-outlined { font-size: 20px; color: white; }
+    .brand-logo-svg { width: 36px; height: 36px; }
     .brand-name { font-weight: 700; font-size: 16px; color: white; display: block; }
     .brand-sub { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; }
 

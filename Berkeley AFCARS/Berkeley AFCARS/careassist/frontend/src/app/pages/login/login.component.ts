@@ -53,7 +53,7 @@ interface RoleCard {
         <div class="hero-section">
           <div class="logo-group">
             <div class="logo-icon">
-              <span class="material-icons-outlined">volunteer_activism</span>
+              <img src="assets/logo-icon.svg" alt="CareAssist" class="login-logo-svg" />
             </div>
             <div class="logo-text">
               <h1 class="brand">CareAssist</h1>
@@ -308,17 +308,15 @@ interface RoleCard {
     .logo-icon {
       width: 64px;
       height: 64px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 8px 32px rgba(102, 126, 234, 0.35);
     }
 
-    .logo-icon .material-icons-outlined {
-      font-size: 32px;
-      color: white;
+    .login-logo-svg {
+      width: 64px;
+      height: 64px;
+      filter: drop-shadow(0 8px 32px rgba(124, 58, 237, 0.35));
     }
 
     .brand {
