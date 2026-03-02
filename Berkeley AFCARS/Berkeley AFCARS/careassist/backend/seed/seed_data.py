@@ -46,7 +46,22 @@ async def seed_if_empty():
             last_name="Davis",
             role="aged_out_youth",
         )
-        db.add_all([u1, u2, u3, u4])
+        # Additional social workers under supervisor James Chen
+        u5 = User(
+            email="priya.patel@careassist.org",
+            hashed_password="demo1234",
+            first_name="Priya",
+            last_name="Patel",
+            role="social_worker",
+        )
+        u6 = User(
+            email="marcus.williams@careassist.org",
+            hashed_password="demo1234",
+            first_name="Marcus",
+            last_name="Williams",
+            role="social_worker",
+        )
+        db.add_all([u1, u2, u3, u4, u5, u6])
         await db.flush()
 
         # ── Children ──
@@ -130,9 +145,17 @@ async def seed_if_empty():
         cases = []
         # Cases assigned to foster parent Maria Garcia (u3): indices 1, 3, 6
         foster_parent_cases = {1, 3, 6}  # Ethan Rodriguez, Liam Thompson, Emma Martinez
+        # Distribute cases across social workers:
+        #   u1 (Samantha Townsend): cases 0,1,2,3  (Maya, Ethan, Aisha, Liam)
+        #   u5 (Priya Patel):       cases 4,5,6    (Sofia, Jordan, Emma)
+        #   u6 (Marcus Williams):    cases 7,8      (Noah, Zoe)
+        worker_for_case = {0: u1, 1: u1, 2: u1, 3: u1,
+                           4: u5, 5: u5, 6: u5,
+                           7: u6, 8: u6}
         for idx, cd in enumerate(cases_data):
             child = cd.pop("child")
-            c = Case(child_id=child.id, assigned_worker_id=u1.id, **cd)
+            worker = worker_for_case[idx]
+            c = Case(child_id=child.id, assigned_worker_id=worker.id, **cd)
             if idx in foster_parent_cases:
                 c.foster_parent_id = u3.id
             # Score with the XGBoost model instead of hardcoding

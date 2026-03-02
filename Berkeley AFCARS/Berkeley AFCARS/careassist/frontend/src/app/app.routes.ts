@@ -74,5 +74,21 @@ export const routes: Routes = [
         (m) => m.AiAssistantComponent
       ),
   },
+  {
+    path: 'resources',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/youth-resources/youth-resources.component').then(
+        (m) => m.YouthResourcesComponent
+      ),
+  },
+  {
+    path: 'records',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/youth-records/youth-records.component').then(
+        (m) => m.YouthRecordsComponent
+      ),
+  },
   { path: '**', redirectTo: '' },
 ];

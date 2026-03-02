@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CaseService } from '../../services/case.service';
+import { AuthService } from '../../services/auth.service';
 
 interface CalendarEvent {
   id: string;
@@ -30,7 +31,7 @@ interface CalendarDay {
       <div class="page-header animate-in">
         <div>
           <h2>Calendar</h2>
-          <p class="subtitle">Upcoming hearings, visits & reviews</p>
+          <p class="subtitle">{{ calendarSubtitle }}</p>
         </div>
         <div class="header-actions">
           <button class="btn btn-primary btn-sm" (click)="showAddModal = true">
@@ -299,6 +300,7 @@ export class CalendarComponent implements OnInit {
   allEvents: CalendarEvent[] = [];
   upcomingEvents: CalendarEvent[] = [];
   showAddModal = false;
+  calendarSubtitle = 'Upcoming hearings, visits & reviews';
 
   newEvent = { title: '', date: '', time: '', type: 'hearing' as CalendarEvent['type'] };
 
@@ -306,10 +308,36 @@ export class CalendarComponent implements OnInit {
     'July', 'August', 'September', 'October', 'November', 'December'];
   dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  constructor(private caseService: CaseService) {}
+  private role = 'social_worker';
+
+  constructor(private caseService: CaseService, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.loadUserEvents();
+    this.role = this.authService.getUserRole() || 'social_worker';
+
+    if (this.role === 'foster_parent') {
+      this.calendarSubtitle = 'Appointments & meetings for your children';
+      this.addFosterParentEvents();
+      this.buildCalendar();
+      this.updateUpcoming();
+    } else if (this.role === 'aged_out_youth') {
+      this.calendarSubtitle = 'Your upcoming appointments & meetings';
+      this.addYouthEvents();
+      this.buildCalendar();
+      this.updateUpcoming();
+    } else if (this.role === 'supervisor') {
+      this.calendarSubtitle = 'Team check-ins & case reviews';
+      this.addSupervisorCheckIns();
+      this.loadWorkerCaseEvents();
+    } else {
+      // social_worker / admin
+      this.loadWorkerCaseEvents();
+    }
+  }
+
+  /** Load case-based system events (for social workers & supervisors). */
+  private loadWorkerCaseEvents(): void {
     this.caseService.getCases().subscribe((cases) => {
       const systemEvents: CalendarEvent[] = [];
       const now = new Date();
@@ -318,7 +346,7 @@ export class CalendarComponent implements OnInit {
         reviewDate.setDate(reviewDate.getDate() + (i + 1) * 5);
         systemEvents.push({
           id: 'sys-review-' + c.id,
-          title: c.child_name + ' – Review',
+          title: c.child_name + ' \u2013 Review',
           date: reviewDate.toISOString().slice(0, 10),
           time: '10:00',
           type: 'review',
@@ -330,7 +358,7 @@ export class CalendarComponent implements OnInit {
           hearingDate.setDate(hearingDate.getDate() + (i + 1) * 7 + 2);
           systemEvents.push({
             id: 'sys-hearing-' + c.id,
-            title: c.child_name + ' – Hearing',
+            title: c.child_name + ' \u2013 Hearing',
             date: hearingDate.toISOString().slice(0, 10),
             time: '09:00',
             type: 'hearing',
@@ -342,6 +370,134 @@ export class CalendarComponent implements OnInit {
       this.allEvents = [...this.allEvents, ...systemEvents];
       this.buildCalendar();
       this.updateUpcoming();
+    });
+  }
+
+  /** Foster parent: kid appointments, doctor visits, SW meetings. */
+  private addFosterParentEvents(): void {
+    const now = new Date();
+    const children = [
+      { name: 'Ethan Rodriguez', sw: 'Samantha Townsend' },
+      { name: 'Liam Thompson', sw: 'Samantha Townsend' },
+      { name: 'Emma Martinez', sw: 'Priya Patel' },
+    ];
+
+    children.forEach((child, ci) => {
+      // Pediatrician check-up
+      const pediatric = new Date(now);
+      pediatric.setDate(pediatric.getDate() + 3 + ci * 8);
+      this.allEvents.push({
+        id: 'fp-medical-' + ci,
+        title: child.name + ' \u2013 Pediatrician',
+        date: pediatric.toISOString().slice(0, 10),
+        time: ci === 0 ? '9:30' : ci === 1 ? '11:00' : '2:00',
+        type: 'medical',
+        source: 'system',
+      });
+
+      // Meeting with social worker
+      const swMeeting = new Date(now);
+      swMeeting.setDate(swMeeting.getDate() + 5 + ci * 6);
+      this.allEvents.push({
+        id: 'fp-sw-' + ci,
+        title: 'Meeting w/ ' + child.sw + ' re: ' + child.name.split(' ')[0],
+        date: swMeeting.toISOString().slice(0, 10),
+        time: ci === 0 ? '1:00' : ci === 1 ? '10:00' : '3:30',
+        type: 'visit',
+        source: 'system',
+      });
+
+      // School events
+      const schoolEvent = new Date(now);
+      schoolEvent.setDate(schoolEvent.getDate() + 10 + ci * 5);
+      this.allEvents.push({
+        id: 'fp-school-' + ci,
+        title: child.name.split(' ')[0] + ' \u2013 Parent-Teacher Conf.',
+        date: schoolEvent.toISOString().slice(0, 10),
+        time: ci === 0 ? '4:00' : ci === 1 ? '3:00' : '4:30',
+        type: 'review',
+        source: 'system',
+      });
+    });
+
+    // Therapy sessions (recurring)
+    for (let w = 0; w < 4; w++) {
+      const therapy = new Date(now);
+      therapy.setDate(therapy.getDate() + (w * 7) + 2); // Wednesdays roughly
+      this.allEvents.push({
+        id: 'fp-therapy-ethan-' + w,
+        title: 'Ethan \u2013 Therapy Session',
+        date: therapy.toISOString().slice(0, 10),
+        time: '10:00',
+        type: 'medical',
+        source: 'system',
+      });
+    }
+
+    // Foster parent support group
+    const supportGroup = new Date(now);
+    supportGroup.setDate(supportGroup.getDate() + 12);
+    this.allEvents.push({
+      id: 'fp-support-group',
+      title: 'Foster Parent Support Group',
+      date: supportGroup.toISOString().slice(0, 10),
+      time: '6:30',
+      type: 'personal',
+      source: 'system',
+    });
+
+    // Case review hearing
+    const hearing = new Date(now);
+    hearing.setDate(hearing.getDate() + 18);
+    this.allEvents.push({
+      id: 'fp-hearing',
+      title: 'Ethan \u2013 Permanency Hearing',
+      date: hearing.toISOString().slice(0, 10),
+      time: '9:00',
+      type: 'hearing',
+      source: 'system',
+    });
+  }
+
+  /** Aged-out youth: personal appointments, court, SW meetings, etc. */
+  private addYouthEvents(): void {
+    const now = new Date();
+
+    const youthEvents: { title: string; offset: number; time: string; type: CalendarEvent['type'] }[] = [
+      { title: 'Meeting w/ Priya Patel (Social Worker)', offset: 2, time: '10:00', type: 'visit' },
+      { title: 'Therapy Session \u2013 Dr. Kim', offset: 4, time: '2:00', type: 'medical' },
+      { title: 'Court \u2013 Independent Living Review', offset: 7, time: '9:00', type: 'hearing' },
+      { title: 'Job Training Orientation', offset: 9, time: '11:00', type: 'personal' },
+      { title: 'Chafee Grant Application Deadline', offset: 11, time: '11:59', type: 'review' },
+      { title: 'Transition Planning Meeting', offset: 14, time: '1:00', type: 'visit' },
+      { title: 'Therapy Session \u2013 Dr. Kim', offset: 18, time: '2:00', type: 'medical' },
+      { title: 'Housing Assistance \u2013 Intake Appt.', offset: 20, time: '10:30', type: 'personal' },
+      { title: 'Meeting w/ Priya Patel (Social Worker)', offset: 23, time: '10:00', type: 'visit' },
+      { title: 'Court \u2013 Status Hearing', offset: 28, time: '9:00', type: 'hearing' },
+      { title: 'GED Prep Class Start', offset: 15, time: '9:00', type: 'review' },
+      { title: 'Life Skills Workshop', offset: 21, time: '3:00', type: 'personal' },
+      { title: 'Physical Exam \u2013 Extended Medicaid', offset: 25, time: '8:30', type: 'medical' },
+      { title: 'Mentorship Program Meetup', offset: 12, time: '5:00', type: 'personal' },
+    ];
+
+    // Also add a few past events
+    const pastEvents: { title: string; offset: number; time: string; type: CalendarEvent['type'] }[] = [
+      { title: 'Meeting w/ Priya Patel (Social Worker)', offset: -5, time: '10:00', type: 'visit' },
+      { title: 'Therapy Session \u2013 Dr. Kim', offset: -10, time: '2:00', type: 'medical' },
+      { title: 'Court \u2013 Emancipation Finalization', offset: -14, time: '9:00', type: 'hearing' },
+    ];
+
+    [...pastEvents, ...youthEvents].forEach((ev, i) => {
+      const d = new Date(now);
+      d.setDate(d.getDate() + ev.offset);
+      this.allEvents.push({
+        id: 'youth-' + i,
+        title: ev.title,
+        date: d.toISOString().slice(0, 10),
+        time: ev.time,
+        type: ev.type,
+        source: 'system',
+      });
     });
   }
 
@@ -459,5 +615,33 @@ export class CalendarComponent implements OnInit {
   private saveUserEvents(): void {
     const userEvents = this.allEvents.filter((e) => e.source === 'user');
     localStorage.setItem('careassist_calendar_events', JSON.stringify(userEvents));
+  }
+
+  private addSupervisorCheckIns(): void {
+    const workers = [
+      { name: 'Samantha Townsend', day: 1 }, // Monday
+      { name: 'Priya Patel', day: 3 },        // Wednesday
+      { name: 'Marcus Williams', day: 5 },    // Friday
+    ];
+    const today = new Date();
+
+    // Generate check-ins for 4 weeks (2 past, 2 future)
+    for (let weekOffset = -2; weekOffset <= 2; weekOffset++) {
+      for (const w of workers) {
+        const d = new Date(today);
+        const currentDay = d.getDay();
+        const diff = w.day - currentDay + weekOffset * 7;
+        d.setDate(d.getDate() + diff);
+
+        this.allEvents.push({
+          id: 'checkin-' + w.name.replace(/\s/g, '') + '-' + d.toISOString().slice(0, 10),
+          title: 'Check-in: ' + w.name,
+          date: d.toISOString().slice(0, 10),
+          time: w.day === 1 ? '9:00' : w.day === 3 ? '10:30' : '2:00',
+          type: 'visit',
+          source: 'system',
+        });
+      }
+    }
   }
 }

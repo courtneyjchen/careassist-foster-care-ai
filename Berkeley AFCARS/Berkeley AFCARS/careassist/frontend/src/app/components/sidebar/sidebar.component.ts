@@ -24,7 +24,7 @@ interface NavItem {
         </div>
         <div class="brand-text">
           <span class="brand-name">CareAssist</span>
-          <span class="brand-sub">{{ isFosterParent ? 'Family Portal' : 'Case Management' }}</span>
+          <span class="brand-sub">{{ brandSub }}</span>
         </div>
       </div>
 
@@ -156,7 +156,7 @@ interface NavItem {
 export class SidebarComponent {
   navItems: NavItem[] = [];
   toolItems: NavItem[] = [];
-  isFosterParent = false;
+  brandSub = 'Case Management';
 
   userInitials = '??';
   userDisplayName = 'User';
@@ -165,7 +165,6 @@ export class SidebarComponent {
   constructor(private auth: AuthService) {
     const user = this.auth.getCurrentUser();
     const role = this.auth.getUserRole() || 'social_worker';
-    this.isFosterParent = role === 'foster_parent';
 
     if (user) {
       this.userInitials = (user.first_name[0] + user.last_name[0]).toUpperCase();
@@ -174,6 +173,7 @@ export class SidebarComponent {
     }
 
     if (role === 'foster_parent') {
+      this.brandSub = 'Family Portal';
       this.navItems = [
         { icon: 'family_restroom', label: 'My Children', route: '/', exact: true },
         { icon: 'chat_bubble_outline', label: 'Messages', route: '/messages', badge: 3 },
@@ -182,8 +182,31 @@ export class SidebarComponent {
         { icon: 'assessment', label: 'Reports', route: '/reports' },
       ];
       this.toolItems = [];
+    } else if (role === 'aged_out_youth') {
+      this.brandSub = 'Youth Portal';
+      this.navItems = [
+        { icon: 'dashboard', label: 'My Portal', route: '/', exact: true },
+        { icon: 'folder_shared', label: 'My Records', route: '/records' },
+        { icon: 'chat_bubble_outline', label: 'Messages', route: '/messages', badge: 2 },
+        { icon: 'lightbulb', label: 'Resources', route: '/resources' },
+        { icon: 'calendar_today', label: 'Calendar', route: '/calendar' },
+      ];
+      this.toolItems = [];
+    } else if (role === 'supervisor') {
+      this.brandSub = 'Supervisor Portal';
+      this.navItems = [
+        { icon: 'dashboard', label: 'Team Overview', route: '/', exact: true },
+        { icon: 'folder_open', label: 'All Cases', route: '/cases' },
+        { icon: 'chat_bubble_outline', label: 'Messages', route: '/messages', badge: 1 },
+        { icon: 'calendar_today', label: 'Calendar', route: '/calendar' },
+        { icon: 'assessment', label: 'Reports', route: '/reports' },
+      ];
+      this.toolItems = [
+        { icon: 'auto_awesome', label: 'AI Assistant', route: '/ai-assistant', ai: true },
+      ];
     } else {
-      // social_worker, supervisor, admin
+      // social_worker, admin
+      this.brandSub = 'Case Management';
       this.navItems = [
         { icon: 'dashboard', label: 'Dashboard', route: '/', exact: true },
         { icon: 'folder_open', label: 'Cases', route: '/cases' },
