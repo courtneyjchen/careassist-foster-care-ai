@@ -1,0 +1,12 @@
+# Ignore large data and binary files
+*.zip
+*.tab
+*.csv
+*.exe
+*.wasm
+*.mp4
+*.pdf
+*.xlsx
+*.png
+*.jpg
+*.ipynb
