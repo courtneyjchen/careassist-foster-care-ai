@@ -1,10 +1,10 @@
 """SHAP-based case explanation service.
 
 Generates per-case feature contributions that explain WHY a case received
-its risk score.  In production this would call the trained XGBoost model's
+its risk score.  In production this would call the trained ensemble model's
 TreeSHAP explainer.  For the demo we derive realistic SHAP values from the
 case/child attributes using the feature-importance weights learned during
-training (XGBoost, 33 features, ROC-AUC 0.906, 91% recall).
+training (v4 weighted ensemble, 65 features, ROC-AUC 0.9205, F1 0.784).
 """
 
 from __future__ import annotations
@@ -14,29 +14,49 @@ from datetime import date
 from typing import Any
 
 # ---------------------------------------------------------------------------
-# Feature-importance weights from the trained XGBoost model (gain-based)
+# Feature-importance weights from the v4 weighted ensemble (gain-based)
 # ---------------------------------------------------------------------------
 FEATURE_IMPORTANCES: dict[str, float] = {
-    "los_latest_removal": 0.155,
-    "los_current_setting": 0.141,
-    "placement_type":      0.128,
-    "total_removals":      0.045,
-    "age_at_removal":      0.039,
-    "has_behavioral":      0.032,
-    "has_disability":      0.028,
-    "NEGLECT":             0.025,
-    "PHYABUSE":            0.024,
-    "num_removal_reasons": 0.022,
+    "los_latest_removal": 0.130,
+    "los_current_setting": 0.125,
+    "placement_type":      0.110,
+    "total_removals":      0.052,
+    "age_at_removal":      0.048,
+    "disability_severity": 0.038,
+    "has_behavioral":      0.038,
+    "abuse_severity":      0.035,
+    "has_disability":      0.032,
+    "age_squared":         0.032,
+    "NEGLECT":             0.028,
+    "num_removal_reasons": 0.028,
+    "PHYABUSE":            0.027,
+    "removal_risk_score":  0.026,
+    "substance_abuse_score":0.022,
+    "has_clinical_disability": 0.022,
+    "ABANDMNT":            0.022,
     "permanency_goal":     0.021,
-    "ABANDMNT":            0.019,
-    "has_clinical_disability": 0.018,
-    "NOCOPE":              0.016,
-    "mandatory_removal":   0.015,
-    "ever_adopted":        0.014,
-    "HOUSING":             0.013,
-    "DAPARENT":            0.012,
-    "AAPARENT":            0.011,
-    "SEXABUSE":            0.009,
+    "los_ratio":           0.020,
+    "has_multiple_disabilities": 0.018,
+    "multiple_removals":   0.018,
+    "NOCOPE":              0.018,
+    "mandatory_removal":   0.017,
+    "has_multiple_abuse":  0.016,
+    "ever_adopted":        0.016,
+    "HOUSING":             0.015,
+    "high_removal_risk":   0.015,
+    "DAPARENT":            0.014,
+    "age_teen":            0.014,
+    "AAPARENT":            0.013,
+    "SEXABUSE":            0.012,
+    "many_removals":       0.012,
+    "permanency_goal_adopt": 0.012,
+    "permanency_goal_emanc": 0.011,
+    "age_infant":          0.010,
+    "permanency_goal_reunif": 0.010,
+    "tpr_status":          0.009,
+    "age_toddler":         0.008,
+    "permanency_goal_guard": 0.007,
+    "age_school":          0.007,
 }
 
 # Base rate (population positive-class prevalence ≈ 36 %)
@@ -49,21 +69,37 @@ FEATURE_LABELS: dict[str, str] = {
     "placement_type":          "Placement Type",
     "total_removals":          "Total Prior Placements",
     "age_at_removal":          "Age at Removal",
+    "age_squared":             "Age² (non-linear effect)",
+    "disability_severity":     "Disability Severity Score",
+    "abuse_severity":          "Abuse Severity Score",
+    "substance_abuse_score":   "Parental Substance Abuse Score",
+    "removal_risk_score":      "Removal Risk Score",
+    "los_ratio":               "LOS Setting/Removal Ratio",
     "has_behavioral":          "Behavioral Needs",
     "has_disability":          "Disability Status",
+    "has_clinical_disability": "Clinical/Medical Needs",
+    "has_multiple_disabilities": "Multiple Disabilities",
     "NEGLECT":                 "Neglect Indicated",
     "PHYABUSE":                "Physical Abuse Indicated",
-    "num_removal_reasons":     "Number of Removal Reasons",
-    "permanency_goal":         "Permanency Goal",
+    "SEXABUSE":                "Sexual Abuse Indicated",
     "ABANDMNT":                "Abandonment Indicated",
-    "has_clinical_disability": "Clinical/Medical Needs",
     "NOCOPE":                  "Caregiver Inability to Cope",
-    "mandatory_removal":       "Mandatory Removal",
-    "ever_adopted":            "Prior Adoption History",
     "HOUSING":                 "Inadequate Housing",
     "DAPARENT":                "Drug Abuse - Parent",
     "AAPARENT":                "Alcohol Abuse - Parent",
-    "SEXABUSE":                "Sexual Abuse Indicated",
+    "has_multiple_abuse":      "Multiple Abuse Indicators",
+    "high_removal_risk":       "High Removal Risk",
+    "num_removal_reasons":     "Number of Removal Reasons",
+    "permanency_goal":         "Permanency Goal",
+    "mandatory_removal":       "Mandatory Removal",
+    "ever_adopted":            "Prior Adoption History",
+    "tpr_status":              "Parental Rights Terminated",
+    "age_infant":              "Infant (0-2 years)",
+    "age_toddler":             "Toddler (3-5 years)",
+    "age_school":              "School Age (6-12 years)",
+    "age_teen":                "Teen (13+ years)",
+    "multiple_removals":       "Multiple Removals (2+)",
+    "many_removals":           "Many Removals (4+)",
 }
 
 RISK_TIERS = [

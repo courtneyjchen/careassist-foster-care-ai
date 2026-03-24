@@ -17,3 +17,4 @@ class User(Base):
 
     cases = relationship("Case", foreign_keys="[Case.assigned_worker_id]", back_populates="assigned_worker")
     foster_cases = relationship("Case", foreign_keys="[Case.foster_parent_id]", back_populates="foster_parent")
+    notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")

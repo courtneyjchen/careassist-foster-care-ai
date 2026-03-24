@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import CORS_ORIGINS
 from .database import init_db
-from .routers import auth, dashboard, cases, chat, files, foster_parent, supervisor
+from .routers import auth, dashboard, cases, chat, files, foster_parent, supervisor, features
 
 app = FastAPI(
     title="CareAssist",
@@ -28,6 +28,7 @@ app.include_router(chat.router, prefix="/api/chat", tags=["AI Assistant"])
 app.include_router(files.router, prefix="/api/files", tags=["Files / S3"])
 app.include_router(foster_parent.router, prefix="/api/foster", tags=["Foster Parent"])
 app.include_router(supervisor.router, prefix="/api/supervisor", tags=["Supervisor"])
+app.include_router(features.router, prefix="/api/features", tags=["Features"])
 
 
 @app.on_event("startup")

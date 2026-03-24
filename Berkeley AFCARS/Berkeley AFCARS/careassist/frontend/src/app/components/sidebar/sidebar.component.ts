@@ -99,11 +99,11 @@ interface NavItem {
     }
     .brand-logo-svg { width: 36px; height: 36px; }
     .brand-name { font-weight: 700; font-size: 16px; color: white; display: block; }
-    .brand-sub { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; }
+    .brand-sub { font-size: 14px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; }
 
     .nav-section { margin-bottom: 20px; }
     .nav-label {
-      font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px;
+      font-size: 14px; text-transform: uppercase; letter-spacing: 1.2px;
       color: rgba(255,255,255,0.3); padding: 0 12px; margin-bottom: 8px; display: block;
     }
 
@@ -111,7 +111,7 @@ interface NavItem {
       display: flex; align-items: center; gap: 10px;
       padding: 10px 12px; border-radius: var(--radius-md);
       color: rgba(255,255,255,0.6); transition: all var(--transition-fast);
-      cursor: pointer; position: relative; font-size: 13px; font-weight: 500;
+      cursor: pointer; position: relative; font-size: 15px; font-weight: 500;
     }
     .nav-item:hover { color: white; background: rgba(255,255,255,0.06); }
     .nav-item.active {
@@ -123,7 +123,7 @@ interface NavItem {
     }
     .nav-item .material-icons-outlined { font-size: 19px; }
     .nav-badge {
-      margin-left: auto; font-size: 10px; font-weight: 700;
+      margin-left: auto; font-size: 14px; font-weight: 700;
       background: var(--danger); color: white; padding: 2px 7px;
       border-radius: var(--radius-full);
     }
@@ -143,10 +143,10 @@ interface NavItem {
       width: 34px; height: 34px; border-radius: 10px;
       background: var(--gradient-primary); display: flex;
       align-items: center; justify-content: center;
-      color: white; font-weight: 700; font-size: 12px;
+      color: white; font-weight: 700; font-size: 16px;
     }
-    .user-name { font-size: 13px; color: white; font-weight: 600; display: block; }
-    .user-role { font-size: 11px; color: rgba(255,255,255,0.4); }
+    .user-name { font-size: 15px; color: white; font-weight: 600; display: block; }
+    .user-role { font-size: 15px; color: rgba(255,255,255,0.4); }
     .user-status {
       width: 8px; height: 8px; border-radius: 50%; background: #38ef7d;
       margin-left: auto; box-shadow: 0 0 6px rgba(56, 239, 125, 0.4);
@@ -177,17 +177,20 @@ export class SidebarComponent {
       this.navItems = [
         { icon: 'family_restroom', label: 'My Children', route: '/', exact: true },
         { icon: 'chat_bubble_outline', label: 'Messages', route: '/messages', badge: 3 },
+        { icon: 'notifications', label: 'Notifications', route: '/notifications' },
         { icon: 'calendar_today', label: 'Calendar', route: '/calendar' },
         { icon: 'upload_file', label: 'Documents', route: '/files' },
         { icon: 'assessment', label: 'Reports', route: '/reports' },
+        { icon: 'lightbulb', label: 'Resources', route: '/foster-resources' },
       ];
       this.toolItems = [];
     } else if (role === 'aged_out_youth') {
       this.brandSub = 'Youth Portal';
       this.navItems = [
         { icon: 'dashboard', label: 'My Portal', route: '/', exact: true },
-        { icon: 'folder_shared', label: 'My Records', route: '/records' },
+        { icon: 'folder_shared', label: 'My Documents', route: '/files' },
         { icon: 'chat_bubble_outline', label: 'Messages', route: '/messages', badge: 2 },
+        { icon: 'notifications', label: 'Notifications', route: '/notifications' },
         { icon: 'lightbulb', label: 'Resources', route: '/resources' },
         { icon: 'calendar_today', label: 'Calendar', route: '/calendar' },
       ];
@@ -198,7 +201,9 @@ export class SidebarComponent {
         { icon: 'dashboard', label: 'Team Overview', route: '/', exact: true },
         { icon: 'folder_open', label: 'All Cases', route: '/cases' },
         { icon: 'chat_bubble_outline', label: 'Messages', route: '/messages', badge: 1 },
+        { icon: 'notifications', label: 'Notifications', route: '/notifications' },
         { icon: 'calendar_today', label: 'Calendar', route: '/calendar' },
+        { icon: 'description', label: 'Documents', route: '/files' },
         { icon: 'assessment', label: 'Reports', route: '/reports' },
       ];
       this.toolItems = [
@@ -211,6 +216,7 @@ export class SidebarComponent {
         { icon: 'dashboard', label: 'Dashboard', route: '/', exact: true },
         { icon: 'folder_open', label: 'Cases', route: '/cases' },
         { icon: 'chat_bubble_outline', label: 'Messages', route: '/messages', badge: 3 },
+        { icon: 'notifications', label: 'Notifications', route: '/notifications' },
         { icon: 'calendar_today', label: 'Calendar', route: '/calendar' },
         { icon: 'description', label: 'Files', route: '/files' },
         { icon: 'assessment', label: 'Reports', route: '/reports' },

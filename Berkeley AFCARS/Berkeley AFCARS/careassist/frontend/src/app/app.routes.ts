@@ -90,5 +90,21 @@ export const routes: Routes = [
         (m) => m.YouthRecordsComponent
       ),
   },
+  {
+    path: 'foster-resources',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/foster-resources/foster-resources.component').then(
+        (m) => m.FosterResourcesComponent
+      ),
+  },
+  {
+    path: 'notifications',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/notifications/notifications.component').then(
+        (m) => m.NotificationsComponent
+      ),
+  },
   { path: '**', redirectTo: '' },
 ];

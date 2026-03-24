@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ChatService } from '../../services/chat.service';
 
 interface ChatMessage {
@@ -43,7 +44,7 @@ interface ChatMessage {
               <span class="material-icons-outlined">psychology</span>
             </div>
             <div class="bubble-content">
-              <p [innerHTML]="formatContent(m.content)"></p>
+              <div class="msg-body" [innerHTML]="formatContent(m.content)"></div>
               <span class="bubble-time">{{ m.timestamp | date:'h:mm a' }}</span>
             </div>
             <div class="bubble-avatar user-avatar" *ngIf="m.role === 'user'">ST</div>
@@ -113,7 +114,7 @@ interface ChatMessage {
     }
     .welcome-icon .material-icons-outlined { font-size: 32px; color: white; }
     .ai-welcome h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
-    .welcome-sub { font-size: 14px; color: var(--text-secondary); text-align: center; max-width: 500px; line-height: 1.6; margin-bottom: 32px; }
+    .welcome-sub { font-size: 16px; color: var(--text-secondary); text-align: center; max-width: 500px; line-height: 1.6; margin-bottom: 32px; }
 
     .suggestion-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 550px; width: 100%; }
     .suggestion-card {
@@ -123,7 +124,7 @@ interface ChatMessage {
     }
     .suggestion-card:hover { border-color: var(--primary); box-shadow: var(--shadow-sm); transform: translateY(-1px); }
     .suggestion-card .material-icons-outlined { font-size: 20px; }
-    .sug-text { font-size: 12px; font-weight: 600; color: var(--text-secondary); line-height: 1.4; }
+    .sug-text { font-size: 16px; font-weight: 600; color: var(--text-secondary); line-height: 1.4; }
 
     /* Messages */
     .ai-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
@@ -138,11 +139,11 @@ interface ChatMessage {
     }
     .bubble-avatar .material-icons-outlined { font-size: 18px; color: white; }
     .user-avatar {
-      background: var(--gradient-info) !important; font-size: 12px; font-weight: 700; color: white;
+      background: var(--gradient-info) !important; font-size: 16px; font-weight: 700; color: white;
     }
 
     .bubble-content {
-      padding: 12px 16px; border-radius: var(--radius-lg); font-size: 13px; line-height: 1.6;
+      padding: 12px 16px; border-radius: var(--radius-lg); font-size: 15px; line-height: 1.6;
     }
     .ai-bubble.user .bubble-content {
       background: var(--primary); color: white; border-bottom-right-radius: 4px;
@@ -150,7 +151,17 @@ interface ChatMessage {
     .ai-bubble.assistant .bubble-content {
       background: var(--bg); border: 1px solid var(--border); border-bottom-left-radius: 4px;
     }
-    .bubble-time { font-size: 9px; opacity: 0.5; display: block; margin-top: 6px; }
+    .bubble-time { font-size: 13px; opacity: 0.5; display: block; margin-top: 6px; }
+
+    /* Rendered message content */
+    .msg-body { font-size: 15px; line-height: 1.7; color: var(--text); }
+    .msg-body strong { font-weight: 600; color: var(--text); }
+    .msg-body .ai-spacer { height: 8px; }
+    .msg-body .ai-item { padding: 2px 0 2px 12px; border-left: 2px solid var(--border); margin: 3px 0; font-size: 12.5px; }
+    .msg-body .ai-flag { padding: 4px 8px; background: rgba(239,68,68,0.06); border-left: 3px solid #ef4444; border-radius: 0 4px 4px 0; margin: 4px 0; font-size: 12.5px; }
+    .msg-body .ai-rec { padding: 3px 8px 3px 16px; color: var(--text-secondary); font-style: italic; font-size: 16px; margin: 0 0 4px 0; }
+    .ai-bubble.user .msg-body, .ai-bubble.user .msg-body strong { color: white; }
+    .ai-bubble.user .msg-body .ai-item { border-left-color: rgba(255,255,255,0.4); }
 
     /* Typing */
     .typing { padding: 12px 20px !important; }
@@ -170,7 +181,7 @@ interface ChatMessage {
     }
     .ai-input-bar input {
       flex: 1; padding: 10px 16px; border-radius: var(--radius-full);
-      border: 1px solid var(--border); font-size: 13px; font-family: var(--font);
+      border: 1px solid var(--border); font-size: 15px; font-family: var(--font);
       background: var(--bg);
     }
     .ai-input-bar input:focus { border-color: var(--primary); outline: none; }
@@ -188,14 +199,14 @@ interface ChatMessage {
       width: 260px; background: var(--surface); border-radius: var(--radius-lg);
       border: 1px solid var(--border); padding: 20px; flex-shrink: 0; overflow-y: auto;
     }
-    .ai-context-panel h4 { font-size: 13px; font-weight: 700; color: var(--text-secondary); margin-bottom: 12px; }
+    .ai-context-panel h4 { font-size: 15px; font-weight: 700; color: var(--text-secondary); margin-bottom: 12px; }
     .ai-context-panel h4:not(:first-child) { margin-top: 24px; }
 
     .context-actions { display: flex; flex-direction: column; gap: 6px; }
     .ctx-action {
       display: flex; align-items: center; gap: 8px; padding: 8px 12px;
       border-radius: var(--radius-md); border: 1px solid var(--border);
-      background: transparent; font-size: 12px; font-weight: 600;
+      background: transparent; font-size: 16px; font-weight: 600;
       cursor: pointer; transition: all var(--transition-fast);
       text-align: left; font-family: var(--font); color: var(--text-secondary);
     }
@@ -205,15 +216,15 @@ interface ChatMessage {
     .capabilities { display: flex; flex-direction: column; gap: 12px; }
     .cap-item { display: flex; gap: 10px; }
     .cap-item .material-icons-outlined { font-size: 18px; color: var(--primary); margin-top: 2px; }
-    .cap-item strong { font-size: 12px; display: block; }
-    .cap-item p { font-size: 11px; color: var(--text-light); margin-top: 2px; line-height: 1.4; }
+    .cap-item strong { font-size: 16px; display: block; }
+    .cap-item p { font-size: 15px; color: var(--text-light); margin-top: 2px; line-height: 1.4; }
 
     @media (max-width: 1000px) {
       .ai-context-panel { display: none; }
     }
   `],
 })
-export class AiAssistantComponent {
+export class AiAssistantComponent implements OnInit {
   messages: ChatMessage[] = [];
   userInput = '';
   isLoading = false;
@@ -238,7 +249,15 @@ export class AiAssistantComponent {
     { icon: 'lightbulb', title: 'Recommendations', desc: 'Evidence-based placement and intervention suggestions' },
   ];
 
-  constructor(private chatService: ChatService) {}
+  constructor(private chatService: ChatService, private route: ActivatedRoute) {}
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['q']) {
+        this.userInput = params['q'];
+      }
+    });
+  }
 
   useSuggestion(text: string): void {
     this.userInput = text;
@@ -279,6 +298,25 @@ export class AiAssistantComponent {
   }
 
   formatContent(content: string): string {
-    return content.replace(/\n/g, '<br>');
+    let html = content;
+    // Escape HTML special chars first
+    html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    // Bold: **text**
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    // Italic: *text*
+    html = html.replace(/(?<!\w)\*(.+?)\*(?!\w)/g, '<em>$1</em>');
+    // Arrow recommendations
+    html = html.replace(/^\s*→\s*(.+)$/gm, '<div class="ai-rec">$1</div>');
+    // Flag lines with emoji
+    html = html.replace(/^\s*-\s*🚩/gm, '<div class="ai-flag">●');
+    // Bullet lines: • or -
+    html = html.replace(/^\s*[•●]\s*/gm, '<div class="ai-item">● ');
+    html = html.replace(/^\s*-\s+/gm, '<div class="ai-item">– ');
+    // Close unclosed divs on next line break
+    html = html.replace(/(<div class="ai-(?:item|flag|rec)">[^<]*?)(?=\n|$)/g, '$1</div>');
+    // Line breaks
+    html = html.replace(/\n\n/g, '<div class="ai-spacer"></div>');
+    html = html.replace(/\n/g, '<br>');
+    return html;
   }
 }

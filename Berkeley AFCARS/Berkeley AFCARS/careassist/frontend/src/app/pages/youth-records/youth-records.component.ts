@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 interface RecordEntry {
   title: string;
@@ -13,7 +14,7 @@ interface RecordEntry {
 @Component({
   selector: 'app-youth-records',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="records-page">
       <div class="page-header animate-in">
@@ -21,6 +22,15 @@ interface RecordEntry {
           <h2>My Records</h2>
           <p class="subtitle">Your complete medical and education history</p>
         </div>
+      </div>
+
+      <!-- Search -->
+      <div class="search-bar animate-in">
+        <span class="material-icons-outlined search-icon">search</span>
+        <input type="text" [(ngModel)]="searchQuery" placeholder="Search records..." class="search-input" />
+        <button class="search-clear" *ngIf="searchQuery" (click)="searchQuery = ''">
+          <span class="material-icons-outlined">close</span>
+        </button>
       </div>
 
       <!-- Category Tabs -->
@@ -69,13 +79,35 @@ interface RecordEntry {
     .records-page { max-width: 100%; }
     .page-header { margin-bottom: 20px; }
     .page-header h2 { font-size: 22px; font-weight: 700; }
-    .subtitle { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+    .subtitle { font-size: 15px; color: var(--text-light); margin-top: 2px; }
+
+    /* Search */
+    .search-bar {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 10px 16px;
+      margin-bottom: 16px; transition: border-color var(--transition-fast);
+    }
+    .search-bar:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(139,92,246,0.1); }
+    .search-icon { font-size: 20px; color: var(--text-light); flex-shrink: 0; }
+    .search-input {
+      flex: 1; border: none; outline: none; background: transparent;
+      font-size: 15px; font-family: var(--font); color: var(--text-primary);
+    }
+    .search-input::placeholder { color: var(--text-light); }
+    .search-clear {
+      border: none; background: transparent; cursor: pointer; padding: 2px;
+      color: var(--text-light); display: flex; align-items: center;
+      border-radius: var(--radius-full); transition: all var(--transition-fast);
+    }
+    .search-clear:hover { background: rgba(139,92,246,0.08); color: var(--primary); }
+    .search-clear .material-icons-outlined { font-size: 18px; }
 
     .cat-tabs { display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
     .cat-tab {
       display: flex; align-items: center; gap: 5px; padding: 8px 16px;
       border-radius: var(--radius-full); border: 1px solid var(--border);
-      background: transparent; font-size: 12px; font-weight: 600;
+      background: transparent; font-size: 16px; font-weight: 600;
       cursor: pointer; transition: all var(--transition-fast); font-family: var(--font);
       color: var(--text-secondary);
     }
@@ -84,7 +116,7 @@ interface RecordEntry {
     .cat-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
     .cat-count {
       background: rgba(255,255,255,0.25); padding: 1px 7px;
-      border-radius: var(--radius-full); font-size: 10px;
+      border-radius: var(--radius-full); font-size: 14px;
     }
 
     /* Timeline */
@@ -123,11 +155,11 @@ interface RecordEntry {
     .tl-icon.placement { background: linear-gradient(135deg, #667eea, #764ba2); }
 
     .tl-info { flex: 1; }
-    .tl-info h4 { font-size: 14px; font-weight: 700; }
-    .tl-meta { font-size: 12px; color: var(--text-light); }
+    .tl-info h4 { font-size: 16px; font-weight: 700; }
+    .tl-meta { font-size: 16px; color: var(--text-light); }
 
     .tl-type {
-      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
       padding: 3px 10px; border-radius: var(--radius-full);
     }
     .tl-type.checkup { background: rgba(56,178,172,0.1); color: #38b2ac; }
@@ -146,7 +178,7 @@ interface RecordEntry {
 
     .tl-details {
       margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-light);
-      font-size: 13px; color: var(--text-secondary); line-height: 1.5;
+      font-size: 15px; color: var(--text-secondary); line-height: 1.5;
     }
 
     .empty-state {
@@ -158,6 +190,7 @@ interface RecordEntry {
 })
 export class YouthRecordsComponent {
   activeCat = 'medical';
+  searchQuery = '';
 
   records: RecordEntry[] = [
     // Medical
@@ -210,7 +243,7 @@ export class YouthRecordsComponent {
       details: 'Aged out of care at 18. Extended foster care services opted in. Independent living plan in place with housing stipend through June 2027.' },
     { title: 'Residential Care Placement', date: 'Feb 2023', provider: 'Sunrise Youth Center',
       type: 'entry', category: 'placement',
-      details: 'Placed in residential care to provide structured environment and therapeutic services. Social worker: Samantha Townsend.' },
+      details: 'Placed in residential care to provide structured environment and therapeutic services. Social worker: Jessica Hawkins.' },
     { title: 'Foster Home — Garcia Household', date: 'Jun 2021', provider: 'Maria Garcia (Foster Parent)',
       type: 'entry', category: 'placement',
       details: 'Placed with licensed foster parent Maria Garcia. Stable placement for 20 months before transition to residential care.' },
@@ -223,7 +256,10 @@ export class YouthRecordsComponent {
   ];
 
   getFiltered(): RecordEntry[] {
-    return this.records.filter(r => r.category === this.activeCat);
+    let result = this.records.filter(r => r.category === this.activeCat);
+    const q = this.searchQuery.toLowerCase().trim();
+    if (q) result = result.filter(r => r.title.toLowerCase().includes(q) || r.provider.toLowerCase().includes(q) || r.type.toLowerCase().includes(q) || (r.details && r.details.toLowerCase().includes(q)));
+    return result;
   }
 
   getMedicalCount(): number { return this.records.filter(r => r.category === 'medical').length; }

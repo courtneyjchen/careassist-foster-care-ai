@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-youth-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="youth-dash">
       <div class="dash-header animate-in">
@@ -16,6 +17,16 @@ import { AuthService } from '../../services/auth.service';
         </div>
       </div>
 
+      <!-- Search -->
+      <div class="search-bar animate-in">
+        <span class="material-icons-outlined search-icon">search</span>
+        <input class="search-input" type="text" placeholder="Search your portal…"
+               [(ngModel)]="searchQuery" />
+        <button class="search-clear" *ngIf="searchQuery" (click)="searchQuery = ''">
+          <span class="material-icons-outlined">close</span>
+        </button>
+      </div>
+
       <!-- Quick Stats -->
       <div class="quick-stats stagger">
         <div class="qs-card animate-in">
@@ -23,8 +34,8 @@ import { AuthService } from '../../services/auth.service';
             <span class="material-icons-outlined">folder_shared</span>
           </div>
           <div class="qs-info">
-            <span class="qs-label">My Records</span>
-            <span class="qs-value">4</span>
+            <span class="qs-label">My Documents</span>
+            <span class="qs-value">14</span>
           </div>
         </div>
         <div class="qs-card animate-in">
@@ -60,7 +71,7 @@ import { AuthService } from '../../services/auth.service';
       <div class="section-header animate-in"><h3>Quick Access</h3></div>
       <div class="access-grid stagger">
 
-        <a routerLink="/records" class="access-card animate-in">
+        <a routerLink="/files" class="access-card animate-in" *ngIf="matchSearch('medical history vaccination checkup prescriptions health')">
           <div class="ac-icon med"><span class="material-icons-outlined">medical_services</span></div>
           <div class="ac-body">
             <h4>Medical History</h4>
@@ -69,7 +80,7 @@ import { AuthService } from '../../services/auth.service';
           <span class="material-icons-outlined ac-arrow">arrow_forward</span>
         </a>
 
-        <a routerLink="/records" class="access-card animate-in">
+        <a routerLink="/files" class="access-card animate-in" *ngIf="matchSearch('school records transcripts report cards IEP attendance')">
           <div class="ac-icon edu"><span class="material-icons-outlined">school</span></div>
           <div class="ac-body">
             <h4>School Records</h4>
@@ -78,7 +89,7 @@ import { AuthService } from '../../services/auth.service';
           <span class="material-icons-outlined ac-arrow">arrow_forward</span>
         </a>
 
-        <a routerLink="/messages" class="access-card animate-in">
+        <a routerLink="/messages" class="access-card animate-in" *ngIf="matchSearch('contact support network social workers foster parents message')">
           <div class="ac-icon msg"><span class="material-icons-outlined">people</span></div>
           <div class="ac-body">
             <h4>Contact Support Network</h4>
@@ -87,7 +98,7 @@ import { AuthService } from '../../services/auth.service';
           <span class="material-icons-outlined ac-arrow">arrow_forward</span>
         </a>
 
-        <a routerLink="/resources" class="access-card animate-in">
+        <a routerLink="/resources" class="access-card animate-in" *ngIf="matchSearch('resources support housing job training education healthcare mentorship')">
           <div class="ac-icon res"><span class="material-icons-outlined">auto_stories</span></div>
           <div class="ac-body">
             <h4>Resources & Support</h4>
@@ -107,11 +118,7 @@ import { AuthService } from '../../services/auth.service';
           </div>
           <div class="info-item">
             <span class="info-label">Date of Birth</span>
-            <span class="info-val">March 14, 2008</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Case Number</span>
-            <span class="info-val">AC-2024-0734</span>
+            <span class="info-val">March 14, 2002</span>
           </div>
           <div class="info-item">
             <span class="info-label">Status</span>
@@ -119,7 +126,7 @@ import { AuthService } from '../../services/auth.service';
           </div>
           <div class="info-item">
             <span class="info-label">Last Placement</span>
-            <span class="info-val">Residential Care</span>
+            <span class="info-val">Group Home</span>
           </div>
           <div class="info-item">
             <span class="info-label">Time in Care</span>
@@ -127,7 +134,7 @@ import { AuthService } from '../../services/auth.service';
           </div>
           <div class="info-item">
             <span class="info-label">Former Social Worker</span>
-            <span class="info-val">Samantha Townsend</span>
+            <span class="info-val">Jessica Hawkins</span>
           </div>
           <div class="info-item">
             <span class="info-label">Former Foster Parent</span>
@@ -139,9 +146,32 @@ import { AuthService } from '../../services/auth.service';
   `,
   styles: [`
     .youth-dash { max-width: 100%; }
+
+    /* Search */
+    .search-bar {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 10px 16px;
+      margin-bottom: 16px; transition: border-color var(--transition-fast);
+    }
+    .search-bar:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(139,92,246,0.1); }
+    .search-icon { font-size: 20px; color: var(--text-light); flex-shrink: 0; }
+    .search-input {
+      flex: 1; border: none; outline: none; background: transparent;
+      font-size: 15px; font-family: var(--font); color: var(--text-primary);
+    }
+    .search-input::placeholder { color: var(--text-light); }
+    .search-clear {
+      border: none; background: transparent; cursor: pointer; padding: 2px;
+      color: var(--text-light); display: flex; align-items: center;
+      border-radius: var(--radius-full); transition: all var(--transition-fast);
+    }
+    .search-clear:hover { background: rgba(139,92,246,0.08); color: var(--primary); }
+    .search-clear .material-icons-outlined { font-size: 18px; }
+
     .dash-header { margin-bottom: 20px; }
     .dash-header h2 { font-size: 22px; font-weight: 700; }
-    .subtitle { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+    .subtitle { font-size: 15px; color: var(--text-light); margin-top: 2px; }
 
     .quick-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
     .qs-card {
@@ -155,7 +185,7 @@ import { AuthService } from '../../services/auth.service';
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
     .qs-icon .material-icons-outlined { font-size: 22px; color: white; }
-    .qs-label { font-size: 12px; color: var(--text-secondary); display: block; }
+    .qs-label { font-size: 16px; color: var(--text-secondary); display: block; }
     .qs-value { font-size: 24px; font-weight: 800; display: block; margin-top: 2px; }
 
     .section-header { margin-bottom: 16px; }
@@ -180,8 +210,8 @@ import { AuthService } from '../../services/auth.service';
     .ac-icon.msg { background: linear-gradient(135deg, #667eea, #764ba2); }
     .ac-icon.res { background: linear-gradient(135deg, #ed8936, #dd6b20); }
     .ac-body { flex: 1; }
-    .ac-body h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
-    .ac-body p { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+    .ac-body h4 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .ac-body p { font-size: 16px; color: var(--text-secondary); line-height: 1.5; }
     .ac-arrow { font-size: 20px; color: var(--text-light); transition: all var(--transition-fast); }
     .access-card:hover .ac-arrow { color: var(--primary); transform: translateX(3px); }
 
@@ -192,11 +222,11 @@ import { AuthService } from '../../services/auth.service';
     }
     .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
     .info-item { display: flex; flex-direction: column; gap: 4px; }
-    .info-label { font-size: 11px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
-    .info-val { font-size: 14px; font-weight: 600; }
+    .info-label { font-size: 15px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+    .info-val { font-size: 16px; font-weight: 600; }
     .info-val.status {
       color: #38b2ac; background: rgba(56,178,172,0.1);
-      padding: 2px 10px; border-radius: var(--radius-full); font-size: 12px; width: fit-content;
+      padding: 2px 10px; border-radius: var(--radius-full); font-size: 16px; width: fit-content;
     }
 
     @media (max-width: 1200px) {
@@ -207,5 +237,12 @@ import { AuthService } from '../../services/auth.service';
   `],
 })
 export class YouthDashboardComponent {
+  searchQuery = '';
   constructor(private auth: AuthService) {}
+
+  matchSearch(keywords: string): boolean {
+    if (!this.searchQuery.trim()) return true;
+    const q = this.searchQuery.toLowerCase();
+    return keywords.toLowerCase().includes(q);
+  }
 }

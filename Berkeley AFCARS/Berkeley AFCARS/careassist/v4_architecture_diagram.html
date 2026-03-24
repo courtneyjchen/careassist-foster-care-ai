@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CareAssist v4 — Weighted Ensemble Architecture</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  .diagram-wrapper {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 40px;
+  }
+</style>
+</head>
+<body>
+<div class="diagram-wrapper">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 820" width="960" height="820" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="gInput" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#667eea"/>
+      <stop offset="100%" stop-color="#764ba2"/>
+    </linearGradient>
+    <linearGradient id="gXGB" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f093fb"/>
+      <stop offset="100%" stop-color="#f5576c"/>
+    </linearGradient>
+    <linearGradient id="gLGB" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4facfe"/>
+      <stop offset="100%" stop-color="#00f2fe"/>
+    </linearGradient>
+    <linearGradient id="gCB" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#43e97b"/>
+      <stop offset="100%" stop-color="#38f9d7"/>
+    </linearGradient>
+    <linearGradient id="gMLP" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fa709a"/>
+      <stop offset="100%" stop-color="#fee140"/>
+    </linearGradient>
+    <linearGradient id="gAgg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a18cd1"/>
+      <stop offset="100%" stop-color="#fbc2eb"/>
+    </linearGradient>
+    <linearGradient id="gThresh" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffecd2"/>
+      <stop offset="100%" stop-color="#fcb69f"/>
+    </linearGradient>
+    <linearGradient id="gHigh" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff6b6b"/>
+      <stop offset="100%" stop-color="#c0392b"/>
+    </linearGradient>
+    <linearGradient id="gLow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#51cf66"/>
+      <stop offset="100%" stop-color="#2b8a3e"/>
+    </linearGradient>
+    <!-- Arrow marker -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#e74c3c"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#27ae60"/>
+    </marker>
+    <!-- Drop shadow -->
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.10"/>
+    </filter>
+    <filter id="shadowLg" x="-6%" y="-6%" width="112%" height="118%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- Title -->
+  <text x="480" y="36" text-anchor="middle" font-size="22" font-weight="700" fill="#1e293b" letter-spacing="-0.3">CareAssist v4 — Weighted Ensemble Architecture</text>
+  <text x="480" y="56" text-anchor="middle" font-size="12" fill="#64748b">AUC 0.9205 · Recall 92% · Precision 32%</text>
+
+  <!-- ═══════════ LAYER 1: INPUT ═══════════ -->
+  <g filter="url(#shadowLg)">
+    <rect x="305" y="78" width="350" height="60" rx="14" fill="url(#gInput)"/>
+    <text x="480" y="106" text-anchor="middle" font-size="17" font-weight="700" fill="white">65 Engineered Features</text>
+    <text x="480" y="124" text-anchor="middle" font-size="11" fill="rgba(255,255,255,0.8)">Demographics · Placement History · Removal · Behavior · Services</text>
+  </g>
+
+  <!-- ═══════════ CONNECTOR LINES: Input → Models ═══════════ -->
+  <!-- XGB -->
+  <path d="M400 138 L165 195" stroke="#94a3b8" stroke-width="1.8" fill="none" marker-end="url(#arrow)" stroke-dasharray="6 3"/>
+  <!-- LGB -->
+  <path d="M445 138 L385 195" stroke="#94a3b8" stroke-width="1.8" fill="none" marker-end="url(#arrow)" stroke-dasharray="6 3"/>
+  <!-- CB -->
+  <path d="M515 138 L575 195" stroke="#94a3b8" stroke-width="1.8" fill="none" marker-end="url(#arrow)" stroke-dasharray="6 3"/>
+  <!-- MLP -->
+  <path d="M560 138 L795 195" stroke="#94a3b8" stroke-width="1.8" fill="none" marker-end="url(#arrow)" stroke-dasharray="6 3"/>
+
+  <!-- ═══════════ LAYER 2: MODELS ═══════════ -->
+  <!-- XGBoost -->
+  <g filter="url(#shadow)">
+    <rect x="60" y="195" width="210" height="140" rx="14" fill="white" stroke="#f5576c" stroke-width="2"/>
+    <rect x="60" y="195" width="210" height="42" rx="14" fill="url(#gXGB)"/>
+    <rect x="60" y="223" width="210" height="14" fill="url(#gXGB)"/>
+    <text x="165" y="222" text-anchor="middle" font-size="15" font-weight="700" fill="white">XGBoost</text>
+    <text x="165" y="262" text-anchor="middle" font-size="11" fill="#475569">822 boosting rounds</text>
+    <text x="165" y="280" text-anchor="middle" font-size="11" fill="#475569">max_depth = 13</text>
+    <text x="165" y="298" text-anchor="middle" font-size="11" fill="#475569">learning_rate = 0.046</text>
+    <text x="165" y="318" text-anchor="middle" font-size="11" fill="#475569">subsample = 0.72</text>
+  </g>
+
+  <!-- LightGBM -->
+  <g filter="url(#shadow)">
+    <rect x="290" y="195" width="210" height="140" rx="14" fill="white" stroke="#00c9ff" stroke-width="2"/>
+    <rect x="290" y="195" width="210" height="42" rx="14" fill="url(#gLGB)"/>
+    <rect x="290" y="223" width="210" height="14" fill="url(#gLGB)"/>
+    <text x="395" y="222" text-anchor="middle" font-size="15" font-weight="700" fill="white">LightGBM</text>
+    <text x="395" y="262" text-anchor="middle" font-size="11" fill="#475569">1,911 boosting rounds</text>
+    <text x="395" y="280" text-anchor="middle" font-size="11" fill="#475569">num_leaves = 377</text>
+    <text x="395" y="298" text-anchor="middle" font-size="11" fill="#475569">learning_rate = 0.021</text>
+    <text x="395" y="318" text-anchor="middle" font-size="11" fill="#475569">feature_fraction = 0.65</text>
+  </g>
+
+  <!-- CatBoost -->
+  <g filter="url(#shadow)">
+    <rect x="520" y="195" width="210" height="140" rx="14" fill="white" stroke="#38d9a9" stroke-width="2"/>
+    <rect x="520" y="195" width="210" height="42" rx="14" fill="url(#gCB)"/>
+    <rect x="520" y="223" width="210" height="14" fill="url(#gCB)"/>
+    <text x="625" y="222" text-anchor="middle" font-size="15" font-weight="700" fill="white">CatBoost</text>
+    <text x="625" y="262" text-anchor="middle" font-size="11" fill="#475569">1,387 iterations</text>
+    <text x="625" y="280" text-anchor="middle" font-size="11" fill="#475569">depth = 12</text>
+    <text x="625" y="298" text-anchor="middle" font-size="11" fill="#475569">learning_rate = 0.044</text>
+    <text x="625" y="318" text-anchor="middle" font-size="11" fill="#475569">l2_leaf_reg = 4.8</text>
+  </g>
+
+  <!-- MLP -->
+  <g filter="url(#shadow)">
+    <rect x="750" y="195" width="170" height="140" rx="14" fill="white" stroke="#fa709a" stroke-width="2"/>
+    <rect x="750" y="195" width="170" height="42" rx="14" fill="url(#gMLP)"/>
+    <rect x="750" y="223" width="170" height="14" fill="url(#gMLP)"/>
+    <text x="835" y="222" text-anchor="middle" font-size="15" font-weight="700" fill="white">MLP</text>
+    <text x="835" y="262" text-anchor="middle" font-size="11" fill="#475569">256 → 128 → 64</text>
+    <text x="835" y="280" text-anchor="middle" font-size="11" fill="#475569">ReLU + Dropout</text>
+    <text x="835" y="298" text-anchor="middle" font-size="11" fill="#475569">Adam optimizer</text>
+    <text x="835" y="318" text-anchor="middle" font-size="11" fill="#475569">50 epochs</text>
+  </g>
+
+  <!-- ═══════════ WEIGHT BADGES ═══════════ -->
+  <!-- XGB weight -->
+  <g>
+    <rect x="139" y="345" width="52" height="26" rx="13" fill="#f5576c"/>
+    <text x="165" y="362" text-anchor="middle" font-size="12" font-weight="700" fill="white">0.35</text>
+  </g>
+  <!-- LGB weight -->
+  <g>
+    <rect x="369" y="345" width="52" height="26" rx="13" fill="#4facfe"/>
+    <text x="395" y="362" text-anchor="middle" font-size="12" font-weight="700" fill="white">0.35</text>
+  </g>
+  <!-- CB weight -->
+  <g>
+    <rect x="599" y="345" width="52" height="26" rx="13" fill="#43e97b"/>
+    <text x="625" y="362" text-anchor="middle" font-size="12" font-weight="700" fill="white">0.20</text>
+  </g>
+  <!-- MLP weight -->
+  <g>
+    <rect x="809" y="345" width="52" height="26" rx="13" fill="#fa709a"/>
+    <text x="835" y="362" text-anchor="middle" font-size="12" font-weight="700" fill="white">0.10</text>
+  </g>
+
+  <!-- ═══════════ CONNECTOR LINES: Models → Aggregation ═══════════ -->
+  <path d="M165 371 L165 410 Q165 430 185 430 L420 430" stroke="#94a3b8" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+  <path d="M395 371 L395 410 Q395 430 415 430 L420 430" stroke="#94a3b8" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+  <path d="M625 371 L625 410 Q625 430 605 430 L540 430" stroke="#94a3b8" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+  <path d="M835 371 L835 410 Q835 430 815 430 L540 430" stroke="#94a3b8" stroke-width="1.8" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- ═══════════ LAYER 3: AGGREGATION ═══════════ -->
+  <g filter="url(#shadowLg)">
+    <rect x="330" y="415" width="300" height="54" rx="14" fill="url(#gAgg)"/>
+    <text x="480" y="440" text-anchor="middle" font-size="15" font-weight="700" fill="white">Weighted Average Probability</text>
+    <text x="480" y="457" text-anchor="middle" font-size="10.5" fill="rgba(255,255,255,0.85)">P = 0.35·XGB + 0.35·LGB + 0.20·CB + 0.10·MLP</text>
+  </g>
+
+  <!-- Connector: Agg → Threshold -->
+  <line x1="480" y1="469" x2="480" y2="508" stroke="#94a3b8" stroke-width="1.8" marker-end="url(#arrow)"/>
+
+  <!-- ═══════════ LAYER 4: THRESHOLD ═══════════ -->
+  <g filter="url(#shadowLg)">
+    <rect x="355" y="508" width="250" height="56" rx="14" fill="white" stroke="#fcb69f" stroke-width="2.5"/>
+    <rect x="355" y="508" width="250" height="34" rx="14" fill="url(#gThresh)"/>
+    <rect x="355" y="528" width="250" height="14" fill="url(#gThresh)"/>
+    <text x="480" y="531" text-anchor="middle" font-size="15" font-weight="700" fill="#7c3aed">Decision Threshold</text>
+    <text x="480" y="552" text-anchor="middle" font-size="12" fill="#64748b">P ≥ <tspan font-weight="700" fill="#e74c3c">0.40</tspan>  →  HIGH  |  P &lt; <tspan font-weight="700" fill="#27ae60">0.40</tspan>  →  LOW</text>
+  </g>
+
+  <!-- ═══════════ CONNECTOR LINES: Threshold → Outcomes ═══════════ -->
+  <path d="M420 564 L300 615" stroke="#e74c3c" stroke-width="2.2" fill="none" marker-end="url(#arrowRed)"/>
+  <path d="M540 564 L660 615" stroke="#27ae60" stroke-width="2.2" fill="none" marker-end="url(#arrowGreen)"/>
+
+  <!-- ═══════════ LAYER 5: OUTCOMES ═══════════ -->
+  <!-- HIGH RISK -->
+  <g filter="url(#shadowLg)">
+    <rect x="165" y="615" width="270" height="106" rx="16" fill="white" stroke="#e74c3c" stroke-width="2.5"/>
+    <rect x="165" y="615" width="270" height="40" rx="16" fill="url(#gHigh)"/>
+    <rect x="165" y="641" width="270" height="14" fill="url(#gHigh)"/>
+    <!-- Icon -->
+    <text x="268" y="643" font-size="18" fill="white">⚠</text>
+    <text x="290" y="643" text-anchor="start" font-size="16" font-weight="700" fill="white">HIGH RISK</text>
+    <text x="300" y="676" text-anchor="middle" font-size="11.5" fill="#475569">Placement instability predicted</text>
+    <text x="300" y="696" text-anchor="middle" font-size="11" fill="#94a3b8">→ Trigger enhanced monitoring</text>
+    <text x="300" y="712" text-anchor="middle" font-size="11" fill="#94a3b8">→ Assign preventive services</text>
+  </g>
+
+  <!-- LOW RISK -->
+  <g filter="url(#shadowLg)">
+    <rect x="525" y="615" width="270" height="106" rx="16" fill="white" stroke="#27ae60" stroke-width="2.5"/>
+    <rect x="525" y="615" width="270" height="40" rx="16" fill="url(#gLow)"/>
+    <rect x="525" y="641" width="270" height="14" fill="url(#gLow)"/>
+    <!-- Icon -->
+    <text x="628" y="643" font-size="18" fill="white">✓</text>
+    <text x="650" y="643" text-anchor="start" font-size="16" font-weight="700" fill="white">LOW RISK</text>
+    <text x="660" y="676" text-anchor="middle" font-size="11.5" fill="#475569">Placement stability expected</text>
+    <text x="660" y="696" text-anchor="middle" font-size="11" fill="#94a3b8">→ Standard case management</text>
+    <text x="660" y="712" text-anchor="middle" font-size="11" fill="#94a3b8">→ Routine check-ins</text>
+  </g>
+
+  <!-- ═══════════ PERFORMANCE FOOTER ═══════════ -->
+  <g>
+    <rect x="175" y="752" width="610" height="50" rx="12" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1.5"/>
+    <!-- Metrics -->
+    <text x="262" y="773" text-anchor="middle" font-size="18" font-weight="700" fill="#6366f1">0.9205</text>
+    <text x="262" y="790" text-anchor="middle" font-size="10" fill="#94a3b8">AUC-ROC</text>
+
+    <line x1="348" y1="760" x2="348" y2="795" stroke="#e2e8f0" stroke-width="1.5"/>
+
+    <text x="420" y="773" text-anchor="middle" font-size="18" font-weight="700" fill="#e74c3c">92%</text>
+    <text x="420" y="790" text-anchor="middle" font-size="10" fill="#94a3b8">Recall</text>
+
+    <line x1="482" y1="760" x2="482" y2="795" stroke="#e2e8f0" stroke-width="1.5"/>
+
+    <text x="545" y="773" text-anchor="middle" font-size="18" font-weight="700" fill="#f59e0b">32%</text>
+    <text x="545" y="790" text-anchor="middle" font-size="10" fill="#94a3b8">Precision</text>
+
+    <line x1="608" y1="760" x2="608" y2="795" stroke="#e2e8f0" stroke-width="1.5"/>
+
+    <text x="698" y="773" text-anchor="middle" font-size="18" font-weight="700" fill="#475569">5.76M</text>
+    <text x="698" y="790" text-anchor="middle" font-size="10" fill="#94a3b8">Records Analyzed</text>
+  </g>
+
+</svg>
+</div>
+</body>
+</html>

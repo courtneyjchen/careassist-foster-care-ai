@@ -1,11 +1,12 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { CaseSummary } from '../../models/interfaces';
 
 @Component({
   selector: 'app-case-table',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   template: `
     <div class="table-wrap card animate-in">
       <table class="case-table">
@@ -17,7 +18,8 @@ import { CaseSummary } from '../../models/interfaces';
             <th>Placement</th>
             <th>Months</th>
             <th>Flags</th>
-            <th>Priority</th>
+            <th>Disruption Risk</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -43,6 +45,12 @@ import { CaseSummary } from '../../models/interfaces';
                 <span>{{ (c.priority_score * 100).toFixed(0) }}%</span>
               </div>
             </td>
+            <td>
+              <a [routerLink]="['/cases', c.id]" class="explore-btn" (click)="$event.stopPropagation()">
+                <span class="material-icons-outlined">psychology</span>
+                Explore
+              </a>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -51,10 +59,10 @@ import { CaseSummary } from '../../models/interfaces';
   styles: [`
     .table-wrap { overflow-x: auto; }
     .case-table {
-      width: 100%; border-collapse: collapse; font-size: 13px;
+      width: 100%; border-collapse: collapse; font-size: 15px;
     }
     .case-table th {
-      text-align: left; padding: 12px 16px; font-weight: 600; font-size: 11px;
+      text-align: left; padding: 12px 16px; font-weight: 600; font-size: 15px;
       text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-light);
       border-bottom: 1px solid var(--border);
     }
@@ -64,14 +72,14 @@ import { CaseSummary } from '../../models/interfaces';
     tr.clickable { cursor: pointer; transition: background var(--transition-fast); }
     tr.clickable:hover { background: rgba(102,126,234,0.03); }
     tr.selected { background: rgba(102,126,234,0.06); }
-    .case-num { font-weight: 600; color: var(--primary); font-size: 12px; }
+    .case-num { font-weight: 600; color: var(--primary); font-size: 16px; }
     .child-name { font-weight: 600; }
     .flag-pill {
       display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px;
       background: rgba(229,62,62,0.08); color: var(--danger); border-radius: var(--radius-full);
-      font-size: 11px; font-weight: 600;
+      font-size: 15px; font-weight: 600;
     }
-    .flag-pill .material-icons-outlined { font-size: 13px; }
+    .flag-pill .material-icons-outlined { font-size: 15px; }
     .no-flags { color: var(--text-light); }
     .priority-cell { display: flex; align-items: center; gap: 8px; }
     .mini-bar { width: 60px; height: 4px; background: var(--border-light); border-radius: 2px; overflow: hidden; }
@@ -79,7 +87,15 @@ import { CaseSummary } from '../../models/interfaces';
     .mini-fill.high { background: var(--danger); }
     .mini-fill.mid { background: var(--warning); }
     .mini-fill.low { background: var(--success); }
-    .priority-cell span { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+    .priority-cell span { font-size: 16px; font-weight: 600; color: var(--text-secondary); }
+    .explore-btn {
+      display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark, #5a6fd6));
+      color: #fff; border-radius: var(--radius-full, 20px); font-size: 13px; font-weight: 600;
+      text-decoration: none; white-space: nowrap; transition: opacity var(--transition-fast, 0.15s);
+    }
+    .explore-btn:hover { opacity: 0.85; }
+    .explore-btn .material-icons-outlined { font-size: 15px; }
   `],
 })
 export class CaseTableComponent {

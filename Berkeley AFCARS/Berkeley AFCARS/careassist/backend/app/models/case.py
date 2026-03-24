@@ -29,3 +29,5 @@ class Case(Base):
     notes = relationship("Note", back_populates="case", cascade="all, delete-orphan")
     documents = relationship("Document", back_populates="case", cascade="all, delete-orphan")
     placements = relationship("Placement", back_populates="case", cascade="all, delete-orphan")
+    risk_history = relationship("RiskScoreHistory", back_populates="case", cascade="all, delete-orphan")
+    shared_notes = relationship("SharedNote", back_populates="case", cascade="all, delete-orphan")

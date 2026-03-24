@@ -19,3 +19,4 @@ class Child(Base):
     prior_adoptions = Column(Integer, default=0)
 
     cases = relationship("Case", back_populates="child")
+    family_members = relationship("FamilyMember", back_populates="child", cascade="all, delete-orphan")

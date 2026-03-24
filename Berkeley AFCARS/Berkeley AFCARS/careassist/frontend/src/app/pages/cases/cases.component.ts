@@ -22,6 +22,16 @@ import { CaseDetail, CaseNote } from '../../models/interfaces';
             <span class="material-icons-outlined">search</span>
             <input type="text" placeholder="Search cases..." [(ngModel)]="searchQuery" (input)="filterCases()" />
           </div>
+          <div class="sort-control">
+            <span class="material-icons-outlined">sort</span>
+            <select [(ngModel)]="activeSort" (change)="filterCases()">
+              <option value="priority">Priority (High → Low)</option>
+              <option value="priority_asc">Priority (Low → High)</option>
+              <option value="last_name">Last Name (A → Z)</option>
+              <option value="first_name">First Name (A → Z)</option>
+              <option value="recent">Most Recent</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -49,19 +59,19 @@ import { CaseDetail, CaseNote } from '../../models/interfaces';
         <div class="case-card animate-in"
              *ngFor="let c of filteredCases; let i = index"
              [class.expanded]="expandedId === c.id"
-             [class.critical]="c.priority_score >= 80"
-             [class.high]="c.priority_score >= 60 && c.priority_score < 80"
-             [class.medium]="c.priority_score >= 40 && c.priority_score < 60"
-             [class.low]="c.priority_score < 40"
+             [class.critical]="pct(c) >= 80"
+             [class.high]="pct(c) >= 60 && pct(c) < 80"
+             [class.medium]="pct(c) >= 40 && pct(c) < 60"
+             [class.low]="pct(c) < 40"
              [style.animation-delay]="i * 40 + 'ms'">
 
           <!-- Severity Bar -->
-          <div class="severity-bar" [style.background]="getSeverityGradient(c.priority_score)"></div>
+          <div class="severity-bar" [style.background]="getSeverityGradient(pct(c))"></div>
 
           <!-- Card Header (always visible) -->
           <div class="card-header" (click)="toggleExpand(c.id)">
             <div class="header-left">
-              <div class="case-avatar" [style.background]="getSeverityGradient(c.priority_score)">
+              <div class="case-avatar" [style.background]="getSeverityGradient(pct(c))">
                 {{ c.child.first_name[0] }}{{ c.child.last_name[0] }}
               </div>
               <div class="case-meta">
@@ -72,10 +82,10 @@ import { CaseDetail, CaseNote } from '../../models/interfaces';
             <div class="header-right">
               <span class="status-badge" [ngClass]="c.status">{{ c.status | titlecase }}</span>
               <div class="score-mini">
-                <span class="score-num">{{ c.priority_score }}</span>
+                <span class="score-num" [style.color]="getSeverityColor(pct(c))">{{ pct(c) }}%</span>
                 <div class="score-bar-mini">
-                  <div class="score-fill-mini" [style.width.%]="c.priority_score"
-                       [style.background]="getSeverityGradient(c.priority_score)"></div>
+                  <div class="score-fill-mini" [style.width.%]="pct(c)"
+                       [style.background]="getSeverityGradient(pct(c))"></div>
                 </div>
               </div>
               <span class="material-icons-outlined expand-icon">
@@ -123,11 +133,11 @@ import { CaseDetail, CaseNote } from '../../models/interfaces';
               <div class="risk-bar-wrap">
                 <div class="risk-score-display">
                   <span class="risk-label">Priority Score</span>
-                  <span class="risk-value" [style.color]="getSeverityColor(c.priority_score)">{{ c.priority_score }}%</span>
+                  <span class="risk-value" [style.color]="getSeverityColor(pct(c))">{{ pct(c) }}%</span>
                 </div>
                 <div class="risk-bar">
-                  <div class="risk-fill" [style.width.%]="c.priority_score"
-                       [style.background]="getSeverityGradient(c.priority_score)"></div>
+                  <div class="risk-fill" [style.width.%]="pct(c)"
+                       [style.background]="getSeverityGradient(pct(c))"></div>
                 </div>
               </div>
               <div class="case-details-grid">
@@ -211,7 +221,7 @@ import { CaseDetail, CaseNote } from '../../models/interfaces';
       display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
     }
     .page-header h2 { font-size: 22px; font-weight: 700; }
-    .subtitle { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+    .subtitle { font-size: 15px; color: var(--text-light); margin-top: 2px; }
 
     .search-box {
       display: flex; align-items: center; gap: 8px;
@@ -220,21 +230,32 @@ import { CaseDetail, CaseNote } from '../../models/interfaces';
     }
     .search-box .material-icons-outlined { font-size: 18px; color: var(--text-light); }
     .search-box input {
-      border: none; outline: none; background: transparent; font-size: 13px;
+      border: none; outline: none; background: transparent; font-size: 15px;
       font-family: var(--font); width: 200px;
+    }
+
+    .sort-control {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-full);
+      padding: 6px 12px;
+    }
+    .sort-control .material-icons-outlined { font-size: 18px; color: var(--text-light); }
+    .sort-control select {
+      border: none; outline: none; background: transparent; font-size: 16px;
+      font-family: var(--font); font-weight: 600; color: var(--text-secondary); cursor: pointer;
     }
 
     .filter-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
     .filter-pill {
       display: flex; align-items: center; gap: 6px; padding: 6px 14px;
       border-radius: var(--radius-full); border: 1px solid var(--border);
-      background: transparent; font-size: 12px; font-weight: 600;
+      background: transparent; font-size: 16px; font-weight: 600;
       color: var(--text-secondary); cursor: pointer; transition: all var(--transition-fast);
       font-family: var(--font);
     }
     .filter-pill:hover { border-color: var(--primary); }
     .filter-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
-    .pill-count { font-size: 10px; opacity: 0.7; }
+    .pill-count { font-size: 14px; opacity: 0.7; }
     .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
     .dot.critical { background: var(--danger); }
     .dot.high { background: var(--warning); }
@@ -259,15 +280,15 @@ import { CaseDetail, CaseNote } from '../../models/interfaces';
     .header-left { display: flex; align-items: center; gap: 12px; }
     .case-avatar {
       width: 40px; height: 40px; border-radius: var(--radius-md); display: flex;
-      align-items: center; justify-content: center; font-weight: 700; font-size: 14px;
+      align-items: center; justify-content: center; font-weight: 700; font-size: 16px;
       color: white;
     }
     .case-meta h3 { font-size: 15px; font-weight: 700; }
-    .case-number { font-size: 11px; color: var(--text-light); }
+    .case-number { font-size: 15px; color: var(--text-light); }
 
     .header-right { display: flex; align-items: center; gap: 14px; }
     .status-badge {
-      padding: 3px 10px; border-radius: var(--radius-full); font-size: 10px;
+      padding: 3px 10px; border-radius: var(--radius-full); font-size: 14px;
       font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
     }
     .status-badge.active { background: rgba(56,178,172,0.12); color: #38b2ac; }
@@ -275,7 +296,7 @@ import { CaseDetail, CaseNote } from '../../models/interfaces';
     .status-badge.archived { background: rgba(160,174,192,0.12); color: #a0aec0; }
 
     .score-mini { display: flex; align-items: center; gap: 8px; }
-    .score-num { font-size: 14px; font-weight: 800; }
+    .score-num { font-size: 16px; font-weight: 800; }
     .score-bar-mini { width: 60px; height: 5px; background: var(--border); border-radius: var(--radius-full); }
     .score-fill-mini { height: 100%; border-radius: var(--radius-full); transition: width 0.6s ease; }
     .expand-icon { color: var(--text-light); font-size: 22px; transition: transform 0.2s ease; }
@@ -285,7 +306,7 @@ import { CaseDetail, CaseNote } from '../../models/interfaces';
 
     .info-section { margin-top: 18px; }
     .info-section h4 {
-      display: flex; align-items: center; gap: 6px; font-size: 13px;
+      display: flex; align-items: center; gap: 6px; font-size: 15px;
       font-weight: 700; color: var(--text-secondary); margin-bottom: 10px;
     }
     .info-section h4 .material-icons-outlined { font-size: 17px; color: var(--primary); }
@@ -294,21 +315,21 @@ import { CaseDetail, CaseNote } from '../../models/interfaces';
     .info-tag {
       display: flex; align-items: center; gap: 5px; padding: 5px 12px;
       background: rgba(139,92,246,0.06); border-radius: var(--radius-full);
-      font-size: 12px; color: var(--text-secondary);
+      font-size: 16px; color: var(--text-secondary);
     }
-    .info-tag .material-icons-outlined { font-size: 14px; color: var(--primary); }
+    .info-tag .material-icons-outlined { font-size: 16px; color: var(--primary); }
 
     .risk-bar-wrap { margin-bottom: 16px; }
     .risk-score-display { display: flex; justify-content: space-between; margin-bottom: 6px; }
-    .risk-label { font-size: 12px; color: var(--text-light); }
+    .risk-label { font-size: 16px; color: var(--text-light); }
     .risk-value { font-size: 16px; font-weight: 800; }
     .risk-bar { width: 100%; height: 8px; background: var(--border); border-radius: var(--radius-full); }
     .risk-fill { height: 100%; border-radius: var(--radius-full); transition: width 0.8s ease; }
 
     .case-details-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
     .detail-item { background: var(--bg); padding: 10px; border-radius: var(--radius-md); }
-    .detail-label { font-size: 10px; color: var(--text-light); display: block; text-transform: uppercase; letter-spacing: 0.5px; }
-    .detail-value { font-size: 14px; font-weight: 700; display: block; margin-top: 4px; }
+    .detail-label { font-size: 14px; color: var(--text-light); display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+    .detail-value { font-size: 16px; font-weight: 700; display: block; margin-top: 4px; }
 
     /* Flags */
     .flags-list { display: flex; flex-direction: column; gap: 10px; }
@@ -321,28 +342,28 @@ import { CaseDetail, CaseNote } from '../../models/interfaces';
     .flag-item.low { background: rgba(56,178,172,0.05); border-left-color: var(--success); }
     .flag-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
     .flag-severity-badge {
-      padding: 2px 8px; border-radius: var(--radius-full); font-size: 9px;
+      padding: 2px 8px; border-radius: var(--radius-full); font-size: 13px;
       font-weight: 800; letter-spacing: 0.5px;
     }
     .flag-severity-badge.critical { background: rgba(229,62,62,0.15); color: var(--danger); }
     .flag-severity-badge.high { background: rgba(237,137,54,0.15); color: var(--warning); }
     .flag-severity-badge.medium { background: rgba(236,201,75,0.15); color: #d69e2e; }
     .flag-severity-badge.low { background: rgba(56,178,172,0.15); color: var(--success); }
-    .flag-type { font-size: 13px; font-weight: 700; }
-    .flag-confidence { font-size: 11px; color: var(--text-light); margin-left: auto; }
-    .flag-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+    .flag-type { font-size: 15px; font-weight: 700; }
+    .flag-confidence { font-size: 15px; color: var(--text-light); margin-left: auto; }
+    .flag-desc { font-size: 16px; color: var(--text-secondary); line-height: 1.5; }
     .flag-rec {
-      display: flex; align-items: flex-start; gap: 5px; font-size: 11px;
+      display: flex; align-items: flex-start; gap: 5px; font-size: 15px;
       color: var(--primary); margin-top: 6px; font-weight: 600;
     }
-    .flag-rec .material-icons-outlined { font-size: 14px; }
+    .flag-rec .material-icons-outlined { font-size: 16px; }
 
     /* Notes */
     .notes-list { display: flex; flex-direction: column; gap: 10px; }
     .note-item { padding: 10px; background: var(--bg); border-radius: var(--radius-md); }
     .note-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
     .note-type-badge {
-      padding: 2px 8px; border-radius: var(--radius-full); font-size: 9px;
+      padding: 2px 8px; border-radius: var(--radius-full); font-size: 13px;
       font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
     }
     .note-type-badge.general { background: rgba(139,92,246,0.12); color: var(--primary); }
@@ -350,19 +371,19 @@ import { CaseDetail, CaseNote } from '../../models/interfaces';
     .note-type-badge.court { background: rgba(237,137,54,0.12); color: var(--warning); }
     .note-type-badge.medical { background: rgba(229,62,62,0.12); color: var(--danger); }
     .note-type-badge.placement { background: rgba(66,153,225,0.12); color: #4299e1; }
-    .note-date { font-size: 10px; color: var(--text-light); }
-    .note-content { font-size: 13px; line-height: 1.5; color: var(--text-secondary); }
-    .empty-notes { font-size: 12px; color: var(--text-light); font-style: italic; }
+    .note-date { font-size: 14px; color: var(--text-light); }
+    .note-content { font-size: 15px; line-height: 1.5; color: var(--text-secondary); }
+    .empty-notes { font-size: 16px; color: var(--text-light); font-style: italic; }
 
     .add-note-form { margin-top: 12px; display: flex; gap: 8px; }
     .note-type-select {
       padding: 8px 10px; border-radius: var(--radius-md); border: 1px solid var(--border);
-      font-size: 12px; font-family: var(--font); background: var(--surface); flex-shrink: 0;
+      font-size: 16px; font-family: var(--font); background: var(--surface); flex-shrink: 0;
     }
     .note-input-wrap { flex: 1; display: flex; gap: 8px; align-items: flex-end; }
     .note-input {
       flex: 1; padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid var(--border);
-      font-size: 12px; font-family: var(--font); resize: none; background: var(--surface);
+      font-size: 16px; font-family: var(--font); resize: none; background: var(--surface);
     }
     .note-input:focus { border-color: var(--primary); outline: none; }
     .btn-add-note {
@@ -385,6 +406,7 @@ export class CasesComponent implements OnInit {
   expandedId: number | null = null;
   searchQuery = '';
   activeFilter = 'all';
+  activeSort = 'priority';
   newNoteType: 'general' | 'visit' | 'court' | 'medical' | 'placement' = 'general';
   newNoteContent = '';
 
@@ -414,7 +436,7 @@ export class CasesComponent implements OnInit {
     let result = [...this.cases];
     if (this.activeFilter !== 'all') {
       result = result.filter((c) => {
-        const s = c.priority_score;
+        const s = Math.round(c.priority_score * 100);
         if (this.activeFilter === 'critical') return s >= 80;
         if (this.activeFilter === 'high') return s >= 60 && s < 80;
         if (this.activeFilter === 'medium') return s >= 40 && s < 60;
@@ -430,6 +452,24 @@ export class CasesComponent implements OnInit {
           c.child.last_name.toLowerCase().includes(q) ||
           c.case_number.toLowerCase().includes(q)
       );
+    }
+    // Sort
+    switch (this.activeSort) {
+      case 'priority':
+        result.sort((a, b) => b.priority_score - a.priority_score);
+        break;
+      case 'priority_asc':
+        result.sort((a, b) => a.priority_score - b.priority_score);
+        break;
+      case 'last_name':
+        result.sort((a, b) => a.child.last_name.localeCompare(b.child.last_name));
+        break;
+      case 'first_name':
+        result.sort((a, b) => a.child.first_name.localeCompare(b.child.first_name));
+        break;
+      case 'recent':
+        result.sort((a, b) => b.id - a.id);
+        break;
     }
     this.filteredCases = result;
   }
@@ -458,5 +498,9 @@ export class CasesComponent implements OnInit {
     if (score >= 60) return 'var(--warning)';
     if (score >= 40) return '#d69e2e';
     return 'var(--success)';
+  }
+
+  pct(c: CaseDetail): number {
+    return Math.round(c.priority_score * 100);
   }
 }

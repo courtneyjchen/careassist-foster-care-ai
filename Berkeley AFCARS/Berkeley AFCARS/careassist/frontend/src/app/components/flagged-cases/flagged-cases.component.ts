@@ -50,12 +50,12 @@ import { FlaggedCaseSummary } from '../../models/interfaces';
     .flagged-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .flag-count {
       display: flex; align-items: center; gap: 4px;
-      font-size: 12px; color: var(--text-secondary);
+      font-size: 16px; color: var(--text-secondary);
     }
-    .flag-count .material-icons-outlined { font-size: 14px; }
+    .flag-count .material-icons-outlined { font-size: 16px; }
     .flagged-body h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
-    .case-num { font-size: 12px; color: var(--text-secondary); }
-    .flag-type { font-size: 12px; color: var(--primary); margin-top: 6px; font-weight: 500; }
+    .case-num { font-size: 16px; color: var(--text-secondary); }
+    .flag-type { font-size: 16px; color: var(--primary); margin-top: 6px; font-weight: 500; }
     .flagged-footer { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
     .score-bar {
       flex: 1; height: 4px; background: var(--border-light); border-radius: 2px; overflow: hidden;
@@ -64,7 +64,7 @@ import { FlaggedCaseSummary } from '../../models/interfaces';
     .score-fill.high { background: var(--danger); }
     .score-fill.mid { background: var(--warning); }
     .score-fill.low { background: var(--success); }
-    .score-label { font-size: 12px; font-weight: 700; color: var(--text-secondary); min-width: 32px; text-align: right; }
+    .score-label { font-size: 16px; font-weight: 700; color: var(--text-secondary); min-width: 32px; text-align: right; }
   `],
 })
 export class FlaggedCasesComponent {

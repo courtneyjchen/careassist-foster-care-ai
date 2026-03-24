@@ -185,7 +185,7 @@ import { AuthService } from './services/auth.service';
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    .greeting-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+    .greeting-sub { font-size: 16px; color: var(--text-secondary); margin-top: 2px; }
 
     .header-right { display: flex; align-items: center; gap: 8px; }
     .header-stat {
@@ -202,7 +202,7 @@ import { AuthService } from './services/auth.service';
     }
     .header-avatar {
       width: 36px; height: 36px; border-radius: 10px; background: var(--gradient-primary);
-      color: white; font-weight: 700; font-size: 13px; display: flex; align-items: center;
+      color: white; font-weight: 700; font-size: 15px; display: flex; align-items: center;
       justify-content: center; margin-left: 6px; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
     }
 
@@ -217,18 +217,18 @@ import { AuthService } from './services/auth.service';
     .footer-logo { display: flex; align-items: center; gap: 6px; color: var(--primary); }
     .footer-logo .material-icons-outlined { font-size: 18px; }
     .footer-brand {
-      font-weight: 700; font-size: 13px;
+      font-weight: 700; font-size: 15px;
       background: var(--gradient-primary); -webkit-background-clip: text;
       -webkit-text-fill-color: transparent; background-clip: text;
     }
-    .footer-copy { font-size: 12px; color: var(--text-light); }
+    .footer-copy { font-size: 16px; color: var(--text-light); }
     .footer-links { display: flex; align-items: center; gap: 6px; }
-    .footer-links a { font-size: 12px; color: var(--text-secondary); transition: color var(--transition-fast); }
+    .footer-links a { font-size: 16px; color: var(--text-secondary); transition: color var(--transition-fast); }
     .footer-links a:hover { color: var(--primary); }
-    .footer-sep { color: var(--text-light); font-size: 10px; }
+    .footer-sep { color: var(--text-light); font-size: 14px; }
     .footer-right { display: flex; align-items: center; }
     .footer-version {
-      font-size: 11px; color: var(--text-light); padding: 3px 10px;
+      font-size: 15px; color: var(--text-light); padding: 3px 10px;
       background: rgba(102, 126, 234, 0.06); border-radius: var(--radius-full); font-weight: 600;
     }
   `],

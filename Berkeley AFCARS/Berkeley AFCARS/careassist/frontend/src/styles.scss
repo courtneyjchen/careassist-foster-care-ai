@@ -61,7 +61,7 @@
 html, body {
   height: 100%;
   font-family: var(--font);
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-primary);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
@@ -88,7 +88,7 @@ a { text-decoration: none; color: inherit; }
   align-items: center;
   padding: 3px 10px;
   border-radius: var(--radius-full);
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: 0.3px;
 }
@@ -108,7 +108,7 @@ a { text-decoration: none; color: inherit; }
   padding: 8px 16px;
   border-radius: var(--radius-md);
   font-weight: 600;
-  font-size: 13px;
+  font-size: 15px;
   border: none;
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -130,7 +130,7 @@ a { text-decoration: none; color: inherit; }
   color: var(--primary);
   background: var(--primary-light);
 }
-.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-sm { padding: 6px 12px; font-size: 16px; }
 .btn .material-icons-outlined { font-size: 16px; }
 
 /* ── Status Badges ─────────────────────────────── */
@@ -197,7 +197,7 @@ a { text-decoration: none; color: inherit; }
   border-radius: var(--radius-sm);
   background: var(--text-primary);
   color: white;
-  font-size: 11px;
+  font-size: 15px;
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;

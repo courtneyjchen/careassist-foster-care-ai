@@ -1,12 +1,15 @@
-"""Risk engine service — backed by the trained XGBoost model.
+"""Risk engine service — backed by the v4 weighted ensemble model.
 
-Wraps the pure-Python XGBoost scorer (app.ml.xgb_scorer) which replicates
-inference from the model trained on 5.76 M AFCARS records (FY 2020-2024).
+Wraps the pure-Python ensemble scorer (app.ml.xgb_scorer) which replicates
+inference from the v4 weighted ensemble trained on 5.76 M AFCARS records
+(FY 2020-2024).
 
 Model specs:
-  - Algorithm:   XGBoost, 500 trees, max_depth 8, lr 0.05
-  - Metric:      ROC-AUC 0.906, 91 % recall at threshold 0.40
-  - Features:    33 (race/gender excluded)
+  - Algorithm:   Weighted Ensemble (XGBoost + LightGBM + CatBoost + MLP)
+  - Metric:      ROC-AUC 0.9205, AP 0.8615, F1 0.784
+  - Threshold:   0.538 (optimised via precision-recall curve)
+  - Features:    65 (20 baseline + 45 engineered / one-hot)
+  - Tuning:      50 Optuna trials, 5-fold stacking
 """
 
 from __future__ import annotations

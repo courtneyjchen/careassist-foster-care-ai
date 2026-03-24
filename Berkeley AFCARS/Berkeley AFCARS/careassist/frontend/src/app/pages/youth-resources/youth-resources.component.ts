@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 interface Resource {
   title: string;
@@ -13,7 +14,7 @@ interface Resource {
 @Component({
   selector: 'app-youth-resources',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="resources-page">
       <div class="page-header animate-in">
@@ -21,6 +22,15 @@ interface Resource {
           <h2>Resources & Support</h2>
           <p class="subtitle">Programs and services available to help you succeed</p>
         </div>
+      </div>
+
+      <!-- Search -->
+      <div class="search-bar animate-in">
+        <span class="material-icons-outlined search-icon">search</span>
+        <input type="text" [(ngModel)]="searchQuery" placeholder="Search resources..." class="search-input" />
+        <button class="search-clear" *ngIf="searchQuery" (click)="searchQuery = ''">
+          <span class="material-icons-outlined">close</span>
+        </button>
       </div>
 
       <!-- Category Tabs -->
@@ -77,13 +87,35 @@ interface Resource {
     .resources-page { max-width: 100%; }
     .page-header { margin-bottom: 20px; }
     .page-header h2 { font-size: 22px; font-weight: 700; }
-    .subtitle { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+    .subtitle { font-size: 15px; color: var(--text-light); margin-top: 2px; }
+
+    /* Search */
+    .search-bar {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 10px 16px;
+      margin-bottom: 16px; transition: border-color var(--transition-fast);
+    }
+    .search-bar:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(139,92,246,0.1); }
+    .search-icon { font-size: 20px; color: var(--text-light); flex-shrink: 0; }
+    .search-input {
+      flex: 1; border: none; outline: none; background: transparent;
+      font-size: 15px; font-family: var(--font); color: var(--text-primary);
+    }
+    .search-input::placeholder { color: var(--text-light); }
+    .search-clear {
+      border: none; background: transparent; cursor: pointer; padding: 2px;
+      color: var(--text-light); display: flex; align-items: center;
+      border-radius: var(--radius-full); transition: all var(--transition-fast);
+    }
+    .search-clear:hover { background: rgba(139,92,246,0.08); color: var(--primary); }
+    .search-clear .material-icons-outlined { font-size: 18px; }
 
     .cat-tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
     .cat-tab {
       display: flex; align-items: center; gap: 5px; padding: 8px 16px;
       border-radius: var(--radius-full); border: 1px solid var(--border);
-      background: transparent; font-size: 12px; font-weight: 600;
+      background: transparent; font-size: 16px; font-weight: 600;
       cursor: pointer; transition: all var(--transition-fast); font-family: var(--font);
       color: var(--text-secondary);
     }
@@ -112,7 +144,7 @@ interface Resource {
     .rc-icon.mentorship { background: linear-gradient(135deg, #9f7aea, #805ad5); }
 
     .rc-cat {
-      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
       padding: 3px 10px; border-radius: var(--radius-full);
     }
     .rc-cat.housing { background: rgba(102,126,234,0.1); color: #667eea; }
@@ -122,7 +154,7 @@ interface Resource {
     .rc-cat.mentorship { background: rgba(159,122,234,0.1); color: #805ad5; }
 
     .resource-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
-    .resource-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
+    .resource-card p { font-size: 15px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
 
     .rc-footer {
       display: flex; align-items: center; gap: 16px; margin-top: 14px;
@@ -130,16 +162,16 @@ interface Resource {
     }
     .rc-contact {
       display: flex; align-items: center; gap: 4px;
-      font-size: 12px; color: var(--text-light);
+      font-size: 16px; color: var(--text-light);
     }
-    .rc-contact .material-icons-outlined { font-size: 14px; }
+    .rc-contact .material-icons-outlined { font-size: 16px; }
     .rc-link {
-      display: flex; align-items: center; gap: 4px; font-size: 12px;
+      display: flex; align-items: center; gap: 4px; font-size: 16px;
       font-weight: 600; color: var(--primary); text-decoration: none;
       margin-left: auto;
     }
     .rc-link:hover { text-decoration: underline; }
-    .rc-link .material-icons-outlined { font-size: 14px; }
+    .rc-link .material-icons-outlined { font-size: 16px; }
 
     .empty-state {
       display: flex; flex-direction: column; align-items: center; padding: 60px;
@@ -153,6 +185,7 @@ interface Resource {
 })
 export class YouthResourcesComponent {
   activeCat = 'all';
+  searchQuery = '';
 
   resources: Resource[] = [
     {
@@ -230,7 +263,10 @@ export class YouthResourcesComponent {
   ];
 
   getFiltered(): Resource[] {
-    if (this.activeCat === 'all') return this.resources;
-    return this.resources.filter(r => r.category === this.activeCat);
+    let result = this.resources;
+    if (this.activeCat !== 'all') result = result.filter(r => r.category === this.activeCat);
+    const q = this.searchQuery.toLowerCase().trim();
+    if (q) result = result.filter(r => r.title.toLowerCase().includes(q) || r.description.toLowerCase().includes(q) || r.category.toLowerCase().includes(q));
+    return result;
   }
 }

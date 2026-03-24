@@ -40,6 +40,15 @@ interface CalendarDay {
         </div>
       </div>
 
+      <!-- Search -->
+      <div class="search-bar animate-in">
+        <span class="material-icons-outlined search-icon">search</span>
+        <input type="text" [(ngModel)]="searchQuery" placeholder="Search events..." class="search-input" (ngModelChange)="onSearchChange()" />
+        <button class="search-clear" *ngIf="searchQuery" (click)="searchQuery = ''; onSearchChange()">
+          <span class="material-icons-outlined">close</span>
+        </button>
+      </div>
+
       <div class="calendar-layout">
         <!-- Calendar Grid -->
         <div class="calendar-grid-wrap animate-in">
@@ -168,7 +177,29 @@ interface CalendarDay {
       display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
     }
     .page-header h2 { font-size: 22px; font-weight: 700; }
-    .subtitle { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+    .subtitle { font-size: 15px; color: var(--text-light); margin-top: 2px; }
+
+    /* Search */
+    .search-bar {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 10px 16px;
+      margin-bottom: 16px; transition: border-color var(--transition-fast);
+    }
+    .search-bar:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(139,92,246,0.1); }
+    .search-icon { font-size: 20px; color: var(--text-light); flex-shrink: 0; }
+    .search-input {
+      flex: 1; border: none; outline: none; background: transparent;
+      font-size: 15px; font-family: var(--font); color: var(--text-primary);
+    }
+    .search-input::placeholder { color: var(--text-light); }
+    .search-clear {
+      border: none; background: transparent; cursor: pointer; padding: 2px;
+      color: var(--text-light); display: flex; align-items: center;
+      border-radius: var(--radius-full); transition: all var(--transition-fast);
+    }
+    .search-clear:hover { background: rgba(139,92,246,0.08); color: var(--primary); }
+    .search-clear .material-icons-outlined { font-size: 18px; }
 
     .calendar-layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
 
@@ -189,7 +220,7 @@ interface CalendarDay {
 
     .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
     .cal-day-header {
-      text-align: center; font-size: 11px; font-weight: 700;
+      text-align: center; font-size: 15px; font-weight: 700;
       color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px;
       padding: 8px 0;
     }
@@ -202,12 +233,12 @@ interface CalendarDay {
     .cal-day.today { background: rgba(139,92,246,0.06); border-color: var(--primary); }
     .cal-day.today .day-num { color: var(--primary); font-weight: 800; }
     .cal-day.selected { background: rgba(139,92,246,0.1); border-color: var(--primary); }
-    .day-num { font-size: 12px; font-weight: 600; margin-bottom: 4px; display: block; }
+    .day-num { font-size: 16px; font-weight: 600; margin-bottom: 4px; display: block; }
 
     .day-events { display: flex; flex-direction: column; gap: 2px; }
     .event-bar {
       display: flex; align-items: center; gap: 3px; padding: 2px 5px;
-      border-radius: 3px; font-size: 9px; font-weight: 600; overflow: hidden;
+      border-radius: 3px; font-size: 13px; font-weight: 600; overflow: hidden;
       white-space: nowrap; text-overflow: ellipsis;
     }
     .event-bar.hearing { background: rgba(139,92,246,0.15); color: var(--primary); }
@@ -215,10 +246,10 @@ interface CalendarDay {
     .event-bar.review { background: rgba(237,137,54,0.15); color: #dd6b20; }
     .event-bar.medical { background: rgba(229,62,62,0.15); color: var(--danger); }
     .event-bar.personal { background: rgba(66,153,225,0.15); color: #4299e1; }
-    .ev-icon { font-size: 11px; }
+    .ev-icon { font-size: 15px; }
     .ev-time { opacity: 0.7; }
     .ev-title { overflow: hidden; text-overflow: ellipsis; }
-    .more-events { font-size: 9px; color: var(--text-light); padding: 1px 5px; }
+    .more-events { font-size: 13px; color: var(--text-light); padding: 1px 5px; }
 
     /* Sidebar */
     .calendar-sidebar { display: flex; flex-direction: column; gap: 20px; }
@@ -226,7 +257,7 @@ interface CalendarDay {
       background: var(--surface); border-radius: var(--radius-lg);
       border: 1px solid var(--border); padding: 16px;
     }
-    .sidebar-section h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+    .sidebar-section h4 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
     .sidebar-events { display: flex; flex-direction: column; gap: 10px; }
     .sidebar-event {
       display: flex; align-items: flex-start; gap: 10px; padding: 10px;
@@ -241,18 +272,18 @@ interface CalendarDay {
     .se-color-bar.medical { background: var(--danger); }
     .se-color-bar.personal { background: #4299e1; }
     .se-info { flex: 1; }
-    .se-title { font-size: 13px; font-weight: 600; display: block; }
+    .se-title { font-size: 15px; font-weight: 600; display: block; }
     .se-meta {
-      display: flex; align-items: center; gap: 4px; font-size: 11px;
+      display: flex; align-items: center; gap: 4px; font-size: 15px;
       color: var(--text-light); margin-top: 3px;
     }
-    .se-meta .material-icons-outlined { font-size: 13px; }
+    .se-meta .material-icons-outlined { font-size: 15px; }
     .se-delete {
       border: none; background: transparent; cursor: pointer;
       color: var(--text-light); padding: 2px;
     }
     .se-delete:hover { color: var(--danger); }
-    .empty-day { font-size: 12px; color: var(--text-light); font-style: italic; }
+    .empty-day { font-size: 16px; color: var(--text-light); font-style: italic; }
 
     /* Modal */
     .modal-overlay {
@@ -275,10 +306,10 @@ interface CalendarDay {
       color: var(--text-light); padding: 4px;
     }
     .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-    .modal-body label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+    .modal-body label { font-size: 16px; font-weight: 600; color: var(--text-secondary); }
     .modal-body input, .modal-body select {
       padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid var(--border);
-      font-size: 13px; font-family: var(--font); background: var(--surface);
+      font-size: 15px; font-family: var(--font); background: var(--surface);
     }
     .modal-body input:focus, .modal-body select:focus { border-color: var(--primary); outline: none; }
     .modal-footer {
@@ -300,6 +331,7 @@ export class CalendarComponent implements OnInit {
   allEvents: CalendarEvent[] = [];
   upcomingEvents: CalendarEvent[] = [];
   showAddModal = false;
+  searchQuery = '';
   calendarSubtitle = 'Upcoming hearings, visits & reviews';
 
   newEvent = { title: '', date: '', time: '', type: 'hearing' as CalendarEvent['type'] };
@@ -377,8 +409,8 @@ export class CalendarComponent implements OnInit {
   private addFosterParentEvents(): void {
     const now = new Date();
     const children = [
-      { name: 'Ethan Rodriguez', sw: 'Samantha Townsend' },
-      { name: 'Liam Thompson', sw: 'Samantha Townsend' },
+      { name: 'Ethan Rodriguez', sw: 'Jessica Hawkins' },
+      { name: 'Liam Thompson', sw: 'Jessica Hawkins' },
       { name: 'Emma Martinez', sw: 'Priya Patel' },
     ];
 
@@ -530,7 +562,12 @@ export class CalendarComponent implements OnInit {
 
   getEventsForDate(date: Date): CalendarEvent[] {
     const ds = date.toISOString().slice(0, 10);
-    return this.allEvents.filter((e) => e.date === ds);
+    let events = this.allEvents.filter((e) => e.date === ds);
+    const q = this.searchQuery.toLowerCase().trim();
+    if (q) {
+      events = events.filter(e => e.title.toLowerCase().includes(q) || e.type.toLowerCase().includes(q) || (e.caseNumber && e.caseNumber.toLowerCase().includes(q)));
+    }
+    return events;
   }
 
   isSameDay(a: Date, b: Date): boolean {
@@ -562,10 +599,19 @@ export class CalendarComponent implements OnInit {
   updateUpcoming(): void {
     const now = new Date();
     const todayStr = now.toISOString().slice(0, 10);
-    this.upcomingEvents = this.allEvents
-      .filter((e) => e.date >= todayStr)
+    let events = this.allEvents.filter((e) => e.date >= todayStr);
+    const q = this.searchQuery.toLowerCase().trim();
+    if (q) {
+      events = events.filter(e => e.title.toLowerCase().includes(q) || e.type.toLowerCase().includes(q) || (e.caseNumber && e.caseNumber.toLowerCase().includes(q)));
+    }
+    this.upcomingEvents = events
       .sort((a, b) => a.date.localeCompare(b.date))
       .slice(0, 8);
+  }
+
+  onSearchChange(): void {
+    this.updateUpcoming();
+    this.buildCalendar();
   }
 
   getEventIcon(type: string): string {
@@ -619,7 +665,7 @@ export class CalendarComponent implements OnInit {
 
   private addSupervisorCheckIns(): void {
     const workers = [
-      { name: 'Samantha Townsend', day: 1 }, // Monday
+      { name: 'Jessica Hawkins', day: 1 }, // Monday
       { name: 'Priya Patel', day: 3 },        // Wednesday
       { name: 'Marcus Williams', day: 5 },    // Friday
     ];

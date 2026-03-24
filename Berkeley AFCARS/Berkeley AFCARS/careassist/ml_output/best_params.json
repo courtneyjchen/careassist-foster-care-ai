@@ -1,0 +1,38 @@
+{
+  "xgb_params": {
+    "max_depth": 13,
+    "learning_rate": 0.045597041293166295,
+    "subsample": 0.8471181403227092,
+    "colsample_bytree": 0.4453173954593992,
+    "min_child_weight": 4,
+    "gamma": 0.7283753497960939,
+    "reg_alpha": 1.7338320566692866e-05,
+    "reg_lambda": 0.31581518931412517,
+    "scale_pos_weight": 2.2289346482854,
+    "num_round": 822
+  },
+  "xgb_cv_auc": 0.9173127853489799,
+  "lgb_params": {
+    "n_estimators": 1911,
+    "max_depth": 13,
+    "learning_rate": 0.07716735082151963,
+    "num_leaves": 377,
+    "subsample": 0.9280299817389028,
+    "colsample_bytree": 0.5127928308970077,
+    "min_child_samples": 54,
+    "reg_alpha": 2.7582673801306996e-07,
+    "reg_lambda": 3.670460049647657e-08
+  },
+  "lgb_cv_auc": 0.9172577541236994,
+  "cat_params": {
+    "iterations": 1387,
+    "depth": 12,
+    "learning_rate": 0.04354116625017102,
+    "l2_leaf_reg": 0.013160290155079945,
+    "bagging_temperature": 0.7189588777200517,
+    "random_strength": 2.911517542463919,
+    "border_count": 166
+  },
+  "cat_cv_auc": 0.9154858776472801,
+  "optimal_threshold": 0.5376584486760179
+}
