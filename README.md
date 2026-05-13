@@ -34,3 +34,7 @@ The final ensemble model achieved:
 | Average Precision | **0.8615** |
 | F1 Score | **0.784** |
 | Recall | **92%** for identifying at-risk placement disruptions |
+
+## Acknowledgments
+
+CareAssist was made possible through the collaborative efforts of an interdisciplinary team spanning machine learning, software engineering, UX, and stakeholder research. Special thanks to Priscilla Siow, Samantha Townsend, and Helin Yilmaz for their talent and dedication in bringing this initiative to life, as well as to our capstone professors and foster care stakeholders for their guidance and support.
