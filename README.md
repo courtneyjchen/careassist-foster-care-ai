@@ -1,6 +1,6 @@
 # CareAssist: An AI-Driven Case Prioritization Tool for Foster Care
 
-> *Developed as part of UC Berkeley’s Master of Information and Data Science (MIDS) Spring 2026 Capstone project. CareAssist was selected as one of six featured projects for the UC Berkeley MIDS Capstone Showcase, where it was presented to a panel of subject matter experts. The project has also received government interest for potential continuation as a nonprofit initiative.*
+> *Developed as part of UC Berkeley’s Master of Information and Data Science (MIDS) Spring 2026 Capstone project. CareAssist was nominated as one of six featured projects for the UC Berkeley MIDS Capstone Showcase, where it was presented to a panel of subject matter experts. The project has also received government interest for potential continuation as a nonprofit initiative.*
 
 ## Overview
 
