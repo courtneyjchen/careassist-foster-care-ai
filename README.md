@@ -15,7 +15,7 @@ In response to social workers’ direct request for a case prioritization tool, 
 | 🌐 [Project Website](https://care-assist.github.io/) | Overview of the platform, mission, and end-users |
 | 💻 [Live Platform](https://d23ykduqz141u1.cloudfront.net/login) | Interactive CareAssist application |
 | 🎥 [Video Demo](https://youtu.be/JWdxfRCivQc) | Walkthrough of the platform and workflow |
-| 🎓 [UC Berkeley Showcase](https://www.ischool.berkeley.edu/projects/2026/careassist-ai-driven-case-prioritization-tool-foster-care) | Featured MIDS Capstone project |
+| 🎓 [UC Berkeley Project Page](https://www.ischool.berkeley.edu/projects/2026/careassist-ai-driven-case-prioritization-tool-foster-care) | Full technical report and implementation details |
 
 ## Technical Highlights
 
