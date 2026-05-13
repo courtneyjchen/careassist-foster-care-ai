@@ -33,7 +33,7 @@ The final ensemble model achieved:
 | ROC-AUC | **0.9205** |
 | Average Precision | **0.8615** |
 | F1 Score | **0.784** |
-| Recall | **92%** for identifying at-risk placement disruptions |
+| Recall | **92%** |
 
 ## Team and Acknowledgments
 
