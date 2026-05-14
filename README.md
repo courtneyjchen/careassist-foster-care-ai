@@ -6,7 +6,7 @@
 
 With over 400,000 children in the U.S. foster care system and approximately 38% of placements ending in disruption, the system often fails to provide the continuity and stability children need to heal and thrive. Frequent placement changes can compound trauma and contribute to long-term behavioral and developmental challenges for children. Additionally, because foster care systems are managed at the county level, critical information (medical records, case notes) is often lost as children move across jurisdictions.
 
-In response to social workers’ direct request for a case prioritization tool, CareAssist introduces a unified, AI-powered platform that uses machine learning to identify early warning signs of placement disruption. The solution is twofold: enabling social workers to intervene before crises occur while consolidating fragmented histories so children receive more continuous, informed, and timely care.
+In response to social workers’ direct request for a case prioritization tool, CareAssist introduces a unified, AI-powered platform that uses machine learning to identify early warning signs of placement disruption. The solution is twofold: enabling social workers to intervene before crises occur while consolidating fragmented histories so children receive more continuous, informed, and timely care. The tool features predictive ensemble modeling for case prioritization, a case management dashboard for four user groups, integrated messaging and scheduling tools, and an AI-powered support agent to streamline case information and coordination.
 
 ## Quick Links
 
@@ -19,7 +19,7 @@ In response to social workers’ direct request for a case prioritization tool, 
 
 ## Technical Highlights
 
-- Ensemble machine learning pipeline trained on AFCARS foster care records
+- Ensemble machine learning pipeline trained on 5.76M foster care records
 - Angular + PostgreSQL platform with role-based access controls
 - SHAP explainability for interpretable risk prediction
 - Ollama-powered LLM assistant with localized deployment
