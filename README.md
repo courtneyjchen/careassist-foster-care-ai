@@ -30,10 +30,10 @@ The final ensemble model achieved:
 
 | Metric | Performance |
 |---|---|
-| ROC-AUC | **0.9205** |
-| Average Precision | **0.8615** |
-| F1 Score | **0.784** |
-| Recall | **92%** |
+| ROC-AUC | 0.9205 |
+| Average Precision | 0.8615 |
+| F1 Score | 0.784 |
+| Recall | 92% |
 
 ## Team and Acknowledgments
 
