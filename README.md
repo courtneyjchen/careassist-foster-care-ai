@@ -4,9 +4,9 @@
 
 ## Overview
 
-With over 400,000 children in the U.S. foster care system and approximately 38% of placements ending in disruption, the system often fails to provide the continuity and stability children need to heal and thrive. Frequent placement changes can compound trauma and contribute to long-term behavioral, emotional, and developmental challenges for children. Additionally, because foster care systems are managed at the county level, critical information, including medical records, case notes, and placement histories, is often lost as children move across jurisdictions.
+With over 400,000 children in the U.S. foster care system and approximately 38% of placements ending in disruption, the system often fails to provide the continuity and stability children need to heal and thrive. Frequent placement changes can compound trauma and contribute to long-term behavioral and developmental challenges for children. Additionally, because foster care systems are managed at the county level, critical information (medical records, case notes) is often lost as children move across jurisdictions.
 
-In response to social workers’ direct request for a case prioritization tool, CareAssist introduces a unified, AI-powered platform that uses machine learning to identify early warning signs of placement disruption. The solution is twofold: enabling social workers to proactively prioritize at-risk cases and intervene before crises occur while consolidating fragmented histories so children receive more continuous, informed, and stable care across placements.
+In response to social workers’ direct request for a case prioritization tool, CareAssist introduces a unified, AI-powered platform that uses machine learning to identify early warning signs of placement disruption. The solution is twofold: enabling social workers to intervene before crises occur while consolidating fragmented histories so children receive more continuous, informed, and timely care.
 
 ## Quick Links
 
